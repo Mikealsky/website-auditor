@@ -2,7 +2,6 @@ import httpx
 import os
 
 
-PAGESPEED_API_KEY = os.getenv("PAGESPEED_API_KEY", "")
 PAGESPEED_URL = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed"
 
 
@@ -11,12 +10,13 @@ async def get_pagespeed_data(url: str) -> dict:
     Calls Google PageSpeed Insights API and returns key performance metrics.
     Falls back to mock data if no API key is set (useful for development).
     """
-    if not PAGESPEED_API_KEY:
+    api_key = os.getenv("PAGESPEED_API_KEY", "")
+    if not api_key:
         return _mock_pagespeed_data()
 
     params = {
         "url": url,
-        "key": PAGESPEED_API_KEY,
+        "key": api_key,
         "strategy": "mobile",  # mobile-first, as Google ranks on mobile
         "category": ["performance", "seo", "accessibility"],
     }

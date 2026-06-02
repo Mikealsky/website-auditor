@@ -2,9 +2,8 @@ import os
 import httpx
 import json
 
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
 CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
-MODEL = "claude-sonnet-4-20250514"
+MODEL = "claude-sonnet-4-6"
 
 
 async def generate_report(url: str, business_name: str, audit_data: dict) -> dict:
@@ -12,13 +11,14 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
     Sends audit results to Claude and returns a plain-English report
     with prioritised recommendations for the business owner.
     """
-    if not ANTHROPIC_API_KEY:
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
         return _mock_report()
 
     prompt = _build_prompt(url, business_name, audit_data)
 
     headers = {
-        "x-api-key": ANTHROPIC_API_KEY,
+        "x-api-key": api_key,
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
     }
@@ -35,10 +35,20 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
         "messages": [{"role": "user", "content": prompt}],
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(CLAUDE_API_URL, headers=headers, json=body)
-        response.raise_for_status()
-        data = response.json()
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(CLAUDE_API_URL, headers=headers, json=body)
+            response.raise_for_status()
+            data = response.json()
+    except httpx.HTTPStatusError as e:
+        error_detail = ""
+        try:
+            error_detail = e.response.json().get("error", {}).get("message", "")
+        except Exception:
+            pass
+        return {"summary": f"AI report unavailable: {error_detail or str(e)}", "model": MODEL, "error": True}
+    except httpx.RequestError as e:
+        return {"summary": f"AI report unavailable: could not reach Anthropic API ({e})", "model": MODEL, "error": True}
 
     report_text = data["content"][0]["text"]
 

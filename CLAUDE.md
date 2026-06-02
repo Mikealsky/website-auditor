@@ -79,6 +79,8 @@ DATABASE_URL=
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
+# Note for Windows users
+Use: python -m uvicorn main:app --reload
 
 # Frontend
 cd frontend
