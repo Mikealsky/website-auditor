@@ -1,0 +1,9 @@
+[PageSpeed] 400 error for https://www.bbc.com/: {
+  "error": {
+    "code": 400,
+    "message": "API key not valid. Please pass a valid API key.",
+    "errors": [
+      {
+        "message": "API key not valid. Please pass a valid API key.",
+         — falling back to mock data
+INFO:     127.0.0.1:53948 - "POST /api/audit HTTP/1.1" 200 OK

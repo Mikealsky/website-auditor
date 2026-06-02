@@ -21,10 +21,20 @@ async def get_pagespeed_data(url: str) -> dict:
         "category": ["performance", "seo", "accessibility"],
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.get(PAGESPEED_URL, params=params)
-        response.raise_for_status()
-        raw = response.json()
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(PAGESPEED_URL, params=params)
+            if response.status_code == 400:
+                print(f"[PageSpeed] 400 error for {url}: {response.text[:200]} — falling back to mock data")
+                return _mock_pagespeed_data()
+            response.raise_for_status()
+            raw = response.json()
+    except httpx.HTTPStatusError as e:
+        print(f"[PageSpeed] HTTP error {e.response.status_code} for {url} — falling back to mock data")
+        return _mock_pagespeed_data()
+    except httpx.RequestError as e:
+        print(f"[PageSpeed] Request failed for {url}: {e} — falling back to mock data")
+        return _mock_pagespeed_data()
 
     categories = raw.get("lighthouseResult", {}).get("categories", {})
     audits = raw.get("lighthouseResult", {}).get("audits", {})
