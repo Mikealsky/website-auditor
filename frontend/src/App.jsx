@@ -7,10 +7,12 @@ export default function App() {
   const [view, setView] = useState('home')
   const [auditData, setAuditData] = useState(null)
   const [businessName, setBusinessName] = useState('this business')
+  const [currentUrl, setCurrentUrl] = useState('')
   const [error, setError] = useState(null)
 
   const handleSubmit = async ({ url, businessName: name }) => {
     setView('loading')
+    setCurrentUrl(url)
     setError(null)
     setBusinessName(name || 'this business')
 
@@ -41,7 +43,7 @@ export default function App() {
     setError(null)
   }
 
-  if (view === 'loading') return <LoadingScreen />
+  if (view === 'loading') return <LoadingScreen url={currentUrl} />
   if (view === 'results') return <ResultsPage data={auditData} businessName={businessName} onReset={handleReset} />
   return <HomePage onSubmit={handleSubmit} error={error} />
 }

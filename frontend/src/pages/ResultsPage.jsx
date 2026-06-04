@@ -1,107 +1,224 @@
 import { useState } from 'react'
-import PerformanceCard from '../components/PerformanceCard'
-import SeoCard from '../components/SeoCard'
-import AiReportCard from '../components/AiReportCard'
+import WADonut from '../components/WADonut'
+import { deriveChecks, deriveFixes, scoreBand } from '../utils/audit'
+
+function CheckList({ items }) {
+  return (
+    <>
+      {items.map((c, i) => {
+        const ico = c.state === 'pass' ? 'wa-ico-pass' : c.state === 'warn' ? 'wa-ico-warn' : 'wa-ico-fail'
+        const g = c.state === 'pass' ? '✓' : c.state === 'warn' ? '!' : '✗'
+        return (
+          <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '11px 0', borderBottom: i < items.length - 1 ? '1px solid var(--line-2)' : 'none' }}>
+            <span className={'wa-ico ' + ico}>{g}</span>
+            <span style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.4, paddingTop: 2 }}>
+              <b>{c.label}</b> <span style={{ color: 'var(--muted)' }}>— {c.detail}</span>
+            </span>
+          </div>
+        )
+      })}
+    </>
+  )
+}
 
 export default function ResultsPage({ data, businessName, onReset }) {
   const [downloading, setDownloading] = useState(false)
-  const [downloadError, setDownloadError] = useState(null)
+  const [downloadErr, setDownloadErr] = useState(null)
 
-  const auditDate = new Date().toLocaleDateString('en-AU', { dateStyle: 'long' })
+  const { performance: perf, seo, ai_report } = data
+  const checks = deriveChecks(seo)
+  const fixes = deriveFixes(data)
+  const high = fixes.filter((f) => f.priority === 'High')
+  const rest = fixes.filter((f) => f.priority !== 'High')
+  const host = data.url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+  const today = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' })
 
-  const handleDownloadPdf = async () => {
+  const scores = [
+    { pct: perf.performance_score, l: 'Performance' },
+    { pct: perf.seo_score, l: 'SEO' },
+    { pct: perf.accessibility_score, l: 'Accessibility' },
+  ].map((s) => ({ ...s, ...scoreBand(s.pct) }))
+
+  const worst = Math.min(...scores.map((s) => s.pct))
+  const overall = worst < 50 ? 'Needs work' : worst < 70 ? 'Almost there' : 'Looking good'
+  const counts = checks.reduce((a, c) => (a[c.state]++, a), { pass: 0, warn: 0, fail: 0 })
+
+  const handleDownload = async () => {
     setDownloading(true)
-    setDownloadError(null)
-
+    setDownloadErr(null)
     try {
       const response = await fetch('/api/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: data.url,
-          business_name: businessName,
-          performance: data.performance,
-          seo: data.seo,
-          ai_report: data.ai_report,
-        }),
+        body: JSON.stringify({ url: data.url, business_name: businessName, performance: perf, seo, ai_report }),
       })
-
       if (!response.ok) {
         const err = await response.json().catch(() => ({}))
         throw new Error(err.detail || 'PDF generation failed.')
       }
-
       const blob = await response.blob()
       const objectUrl = URL.createObjectURL(blob)
-      const anchor = document.createElement('a')
-      anchor.href = objectUrl
-      anchor.download = `audit-report.pdf`
-      anchor.click()
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = `audit-report.pdf`
+      a.click()
       URL.revokeObjectURL(objectUrl)
     } catch (err) {
-      setDownloadError(err.message)
+      setDownloadErr(err.message || 'Download failed.')
     } finally {
       setDownloading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="text-base font-bold text-gray-900">Website Auditor</h1>
-            <p className="text-xs text-gray-500 truncate">{data.url}</p>
+    <div className="wa" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+      <div style={{ maxWidth: 1320, margin: '0 auto', padding: 22, display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+        {/* black header band */}
+        <div style={{ background: 'var(--ink)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(22px,2.6vw,30px) clamp(22px,3vw,34px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, gap: 14, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#fff', color: 'var(--ink)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 16 }}>W</div>
+              <span style={{ fontWeight: 800, fontSize: 15 }}>Website Auditor</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span className="wa-mono" style={{ fontSize: 13, color: 'rgba(255,255,255,.45)', marginRight: 4 }}>Audit · {today}</span>
+              <button onClick={handleDownload} disabled={downloading} className="wa-btn wa-btn-sm" style={{ background: 'rgba(255,255,255,.1)', color: '#fff' }}>
+                {downloading ? 'Generating…' : '⬇ Download'}
+              </button>
+              <button onClick={onReset} className="wa-btn wa-btn-sm" style={{ background: '#fff', color: 'var(--ink)' }}>
+                New audit
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <button
-              onClick={handleDownloadPdf}
-              disabled={downloading}
-              className="text-sm bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-1.5"
-            >
-              {downloading ? (
-                <>
-                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-                  </svg>
-                  Generating…
-                </>
-              ) : (
-                <>
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17v3a1 1 0 001 1h16a1 1 0 001-1v-3" />
-                  </svg>
-                  Download Report
-                </>
-              )}
-            </button>
-            <button
-              onClick={onReset}
-              className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
-            >
-              New Audit
-            </button>
+
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 30, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, flex: '1 1 280px', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <span className="wa-chip" style={{ background: 'rgba(226,96,63,.18)', color: 'var(--coral-tint-3)' }}>● {overall}</span>
+                <span className="wa-mono" style={{ fontSize: 14, color: 'rgba(255,255,255,.5)' }}>{host}</span>
+              </div>
+              <h1 style={{ fontSize: 'clamp(32px,3.6vw,46px)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.04, overflowWrap: 'break-word', maxWidth: '100%' }}>
+                {businessName}
+              </h1>
+            </div>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', flex: '0 0 auto' }}>
+              {scores.map((s, i) => (
+                <div key={i} style={{ width: 148, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 'var(--r-md)', padding: '16px 18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
+                    <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>{s.pct}</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>/100</span>
+                  </div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, marginTop: 10 }}>{s.l}</div>
+                  <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,.14)', marginTop: 8 }}>
+                    <div style={{ width: s.pct + '%', height: '100%', borderRadius: 99, background: s.c }} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        {downloadError && (
-          <div className="max-w-3xl mx-auto px-4 pb-3">
-            <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-              PDF error: {downloadError}
-            </p>
+
+        {downloadErr && (
+          <div className="wa-card" style={{ padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 10, background: 'var(--red-soft)', border: '1px solid var(--coral-tint-3)' }}>
+            <span className="wa-ico wa-ico-fail" style={{ width: 22, height: 22, fontSize: 12 }}>!</span>
+            <span style={{ fontSize: 13.5, color: 'var(--red)' }}>Couldn't generate the PDF: {downloadErr}</span>
           </div>
         )}
-      </div>
 
-      <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Audit Results</h2>
-          <p className="text-sm text-gray-500 mt-1">Analysed on {auditDate}</p>
+        {/* body grid */}
+        <div className="wa-resc-grid" style={{ display: 'grid', gridTemplateColumns: '1.45fr 1fr', gap: 18, alignItems: 'start' }}>
+
+          {/* left — fix list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', padding: '2px 4px' }}>🔧 Fix these first</h2>
+
+            {high.length === 0 && (
+              <div className="wa-card" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 14 }}>
+                <span className="wa-ico wa-ico-pass" style={{ width: 34, height: 34, fontSize: 17 }}>✓</span>
+                <div>
+                  <div style={{ fontWeight: 800, fontSize: 17 }}>No urgent issues — nice work!</div>
+                  <p style={{ fontSize: 14, color: 'var(--muted)', marginTop: 3 }}>Your site clears the big checks. The smaller tweaks below will sharpen it further.</p>
+                </div>
+              </div>
+            )}
+
+            {high.map((f) => (
+              <div key={f.n} className="wa-card" style={{ padding: 22, display: 'flex', gap: 18, alignItems: 'center', borderLeft: '5px solid var(--coral)' }}>
+                <div style={{ flex: 'none', width: 44, height: 44, borderRadius: '50%', background: 'var(--coral-tint-1)', color: 'var(--coral-700)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 19 }}>{f.n}</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 800, fontSize: 18 }}>{f.title}</div>
+                  <p style={{ fontSize: 14.5, color: 'var(--muted)', marginTop: 4, lineHeight: 1.45 }}>{f.body}</p>
+                </div>
+                <span className="wa-chip wa-chip-red" style={{ flex: 'none' }}>High impact</span>
+              </div>
+            ))}
+
+            {rest.length > 0 && (
+              <div className="wa-card" style={{ padding: '10px 24px' }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--muted)', padding: '12px 0 4px', letterSpacing: '.04em' }}>THEN, WHEN YOU CAN</div>
+                {rest.map((f) => (
+                  <div key={f.n} style={{ display: 'flex', gap: 14, alignItems: 'center', padding: '13px 0', borderTop: '1px solid var(--line-2)' }}>
+                    <div style={{ flex: 'none', width: 28, height: 28, borderRadius: '50%', background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13 }}>{f.n}</div>
+                    <div style={{ flex: 1 }}>
+                      <span style={{ fontWeight: 700, fontSize: 15 }}>{f.title}</span>
+                      <p style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 2 }}>{f.body}</p>
+                    </div>
+                    <span className={'wa-chip ' + (f.priority === 'Medium' ? 'wa-chip-amber' : 'wa-chip-green')} style={{ flex: 'none' }}>{f.priority}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* right — vitals + AI + health */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="wa-card" style={{ padding: 22, display: 'flex', alignItems: 'center', gap: 20 }}>
+              <div>
+                <div className={'wa-chip ' + (parseFloat(perf.load_time_seconds) > 4 ? 'wa-chip-red' : 'wa-chip-green')} style={{ marginBottom: 8 }}>
+                  {parseFloat(perf.load_time_seconds) > 4 ? 'Too slow' : 'Good'}
+                </div>
+                <div style={{ fontSize: 13.5, color: 'var(--muted)' }}>Loads in</div>
+                <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1 }}>{perf.load_time_seconds}</div>
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {[['First paint', perf.first_contentful_paint], ['Largest', perf.largest_contentful_paint], ['Layout shift', perf.cumulative_layout_shift]].map((m, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '6px 0', borderBottom: i < 2 ? '1px solid var(--line-2)' : 'none' }}>
+                    <span style={{ color: 'var(--muted)' }}>{m[0]}</span>
+                    <span className="wa-mono" style={{ fontWeight: 700 }}>{m[1]}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="wa-card" style={{ padding: 22, background: 'var(--ink)', color: '#fff' }}>
+              <div className="wa-eyebrow" style={{ color: 'var(--coral-tint-3)', marginBottom: 10 }}>In plain English</div>
+              <p style={{ fontSize: 14.5, lineHeight: 1.55, color: 'rgba(255,255,255,.85)' }}>{ai_report.summary}</p>
+            </div>
+
+            <div className="wa-card" style={{ padding: '16px 22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 800 }}>Health check</h3>
+                <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>
+                  <b style={{ color: 'var(--green)' }}>{counts.pass}</b> · <b style={{ color: '#a9701f' }}>{counts.warn}</b> · <b style={{ color: 'var(--red)' }}>{counts.fail}</b>
+                </span>
+              </div>
+              <CheckList items={checks} />
+            </div>
+          </div>
         </div>
 
-        <PerformanceCard performance={data.performance} />
-        <SeoCard seo={data.seo} />
-        <AiReportCard report={data.ai_report} />
+        {/* CTA footer */}
+        <div style={{ background: 'linear-gradient(110deg, var(--coral) 0%, var(--coral-600) 100%)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(22px,2.6vw,26px) clamp(24px,3vw,34px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
+          <div>
+            <h3 style={{ fontSize: 'clamp(20px,2.4vw,26px)', fontWeight: 800, letterSpacing: '-0.02em' }}>Want help fixing this?</h3>
+            <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.85)', marginTop: 6 }}>Run another audit or download your full PDF report to share with a developer.</p>
+          </div>
+          <button onClick={onReset} className="wa-btn" style={{ flex: 'none', background: '#fff', color: 'var(--coral-700)', padding: '16px 28px', fontSize: 16 }}>
+            Audit another site →
+          </button>
+        </div>
+
       </div>
     </div>
   )

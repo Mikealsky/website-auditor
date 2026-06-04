@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiteAudit — Template 1: Clarity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --color-primary:    #1E3A5F;
+      --color-secondary:  #2563EB;
+      --color-accent:     #059669;
+      --color-background: #F8FAFC;
+      --color-foreground: #0F172A;
+      --color-muted:      #F1F3F5;
+      --color-border:     #E4E7EB;
+      --color-destructive:#DC2626;
+      --color-white:      #FFFFFF;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: var(--color-background);
+      color: var(--color-foreground);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Poppins', sans-serif; line-height: 1.25; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(248,250,252,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--color-border);
+      padding: 0 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; font-size: 1.2rem;
+      color: var(--color-primary);
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-accent); }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { text-decoration: none; color: #475569; font-size: .9rem; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--color-secondary); }
+    .btn-nav {
+      background: var(--color-secondary); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      padding: 9px 20px; font-size: .875rem; font-weight: 600;
+      cursor: pointer; transition: background .15s, transform .1s;
+    }
+    .btn-nav:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 96px 5% 80px;
+      text-align: center;
+      max-width: 860px; margin: 0 auto;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #EFF6FF; color: var(--color-secondary);
+      border: 1px solid #BFDBFE;
+      border-radius: 99px; padding: 5px 14px;
+      font-size: .8rem; font-weight: 600;
+      margin-bottom: 28px;
+    }
+    .hero-badge svg { width: 14px; height: 14px; }
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      color: var(--color-primary);
+      margin-bottom: 20px;
+      letter-spacing: -.02em;
+    }
+    .hero h1 span { color: var(--color-secondary); }
+    .hero p {
+      font-size: 1.1rem; color: #475569;
+      max-width: 600px; margin: 0 auto 40px;
+    }
+
+    /* URL INPUT */
+    .url-form {
+      display: flex; gap: 12px;
+      background: #fff; border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 8px 8px 8px 20px;
+      box-shadow: var(--shadow-md);
+      max-width: 640px; margin: 0 auto 20px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .url-form:focus-within {
+      border-color: var(--color-secondary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12), var(--shadow-md);
+    }
+    .url-form input {
+      flex: 1; border: none; outline: none;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 1rem; color: var(--color-foreground);
+      background: transparent;
+    }
+    .url-form input::placeholder { color: #94A3B8; }
+    .btn-primary {
+      background: var(--color-accent); color: #fff;
+      border: none; border-radius: var(--radius-md);
+      padding: 12px 28px; font-size: .95rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .btn-primary:hover { background: #047857; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(5,150,105,.35); }
+    .hero-note { font-size: .8rem; color: #94A3B8; }
+
+    /* SOCIAL PROOF */
+    .social-proof {
+      display: flex; align-items: center; justify-content: center; gap: 32px;
+      padding: 28px 5%;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-white);
+    }
+    .sp-item { text-align: center; }
+    .sp-num { font-family: 'Poppins', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--color-primary); }
+    .sp-label { font-size: .78rem; color: #64748B; margin-top: 2px; }
+    .sp-divider { width: 1px; height: 40px; background: var(--color-border); }
+
+    /* FEATURES */
+    .features {
+      padding: 80px 5%;
+      max-width: 1100px; margin: 0 auto;
+    }
+    .section-label {
+      text-align: center; margin-bottom: 48px;
+    }
+    .section-label h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700; color: var(--color-primary); margin-bottom: 12px;
+    }
+    .section-label p { color: #64748B; font-size: 1rem; max-width: 520px; margin: 0 auto; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: var(--color-white);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    .feature-icon svg { width: 24px; height: 24px; }
+    .fi-blue  { background: #EFF6FF; color: var(--color-secondary); }
+    .fi-green { background: #ECFDF5; color: var(--color-accent); }
+    .fi-purple{ background: #F5F3FF; color: #7C3AED; }
+    .fi-orange{ background: #FFF7ED; color: #EA580C; }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; color: var(--color-primary); }
+    .feature-card p  { font-size: .875rem; color: #64748B; line-height: 1.65; }
+
+    /* RESULTS DEMO */
+    .results-section {
+      background: var(--color-primary);
+      padding: 80px 5%;
+    }
+    .results-inner {
+      max-width: 1100px; margin: 0 auto;
+    }
+    .results-section .section-label h2 { color: #fff; }
+    .results-section .section-label p  { color: #94A3B8; }
+
+    .results-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .results-header {
+      background: var(--color-muted);
+      border-bottom: 1px solid var(--color-border);
+      padding: 16px 24px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .results-header .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red   { background: #FC5C5C; }
+    .dot-yellow{ background: #FDBC40; }
+    .dot-green { background: #34C749; }
+    .url-bar {
+      flex: 1; background: #fff;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 6px 14px; font-size: .8rem; color: #64748B;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .url-bar svg { width: 13px; height: 13px; color: var(--color-accent); flex-shrink: 0; }
+
+    .results-body { display: grid; grid-template-columns: 1fr 1fr; }
+    .results-left { padding: 28px 28px 28px 28px; border-right: 1px solid var(--color-border); }
+    .results-right { padding: 28px; }
+
+    .score-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 18px;
+    }
+    .score-label { font-size: .875rem; font-weight: 600; color: var(--color-foreground); }
+    .score-bar-wrap { flex: 1; margin: 0 14px; }
+    .score-bar {
+      height: 8px; border-radius: 99px; background: var(--color-muted);
+      overflow: hidden;
+    }
+    .score-fill { height: 100%; border-radius: 99px; transition: width .6s ease-out; }
+    .fill-green  { background: var(--color-accent); }
+    .fill-yellow { background: #F59E0B; }
+    .fill-red    { background: var(--color-destructive); }
+    .score-val { font-weight: 700; font-size: .9rem; min-width: 36px; text-align: right; }
+    .sv-green  { color: var(--color-accent); }
+    .sv-yellow { color: #F59E0B; }
+    .sv-red    { color: var(--color-destructive); }
+
+    .results-right h3 {
+      font-size: 1rem; font-weight: 700; color: var(--color-primary);
+      margin-bottom: 14px;
+    }
+    .reco-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--color-border);
+    }
+    .reco-item:last-child { border-bottom: none; }
+    .reco-priority {
+      font-size: .7rem; font-weight: 700;
+      padding: 3px 8px; border-radius: 99px; white-space: nowrap;
+      margin-top: 2px;
+    }
+    .rp-high   { background: #FEE2E2; color: #991B1B; }
+    .rp-medium { background: #FEF3C7; color: #92400E; }
+    .rp-low    { background: #D1FAE5; color: #065F46; }
+    .reco-text { font-size: .85rem; color: #475569; line-height: 1.5; }
+    .reco-text strong { color: var(--color-foreground); font-weight: 600; }
+
+    .results-footer {
+      padding: 16px 28px;
+      border-top: 1px solid var(--color-border);
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--color-muted);
+    }
+    .rf-note { font-size: .8rem; color: #64748B; }
+    .btn-pdf {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--color-primary); color: #fff;
+      border: none; border-radius: var(--radius-sm);
+      padding: 9px 18px; font-size: .85rem; font-weight: 600;
+      cursor: pointer; transition: background .15s;
+      font-family: 'Poppins', sans-serif;
+    }
+    .btn-pdf:hover { background: #162d4a; }
+    .btn-pdf svg { width: 16px; height: 16px; }
+
+    /* HOW IT WORKS */
+    .hiw { padding: 80px 5%; background: var(--color-white); }
+    .hiw-inner { max-width: 1000px; margin: 0 auto; }
+    .steps { display: flex; gap: 0; position: relative; counter-reset: step; }
+    .steps::before {
+      content: ''; position: absolute;
+      top: 22px; left: calc(50px + 12.5%); right: calc(50px + 12.5%);
+      height: 2px; background: var(--color-border);
+    }
+    .step { flex: 1; text-align: center; padding: 0 16px; }
+    .step-num {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--color-secondary); color: #fff;
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; position: relative; z-index: 1;
+    }
+    .step h4 { font-size: .95rem; font-weight: 600; margin-bottom: 6px; color: var(--color-primary); }
+    .step p { font-size: .8rem; color: #64748B; }
+
+    /* CTA SECTION */
+    .cta-section {
+      padding: 80px 5%; text-align: center;
+      background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+    }
+    .cta-section h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800; color: var(--color-primary); margin-bottom: 14px;
+    }
+    .cta-section p { color: #475569; margin-bottom: 32px; font-size: 1rem; }
+    .cta-url-form {
+      display: flex; gap: 12px; justify-content: center;
+      max-width: 540px; margin: 0 auto;
+    }
+    .cta-url-form input {
+      flex: 1; border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-sm); padding: 12px 18px;
+      font-size: .95rem; font-family: 'Open Sans', sans-serif;
+      outline: none; background: #fff;
+      transition: border-color .2s;
+    }
+    .cta-url-form input:focus { border-color: var(--color-secondary); }
+
+    /* FOOTER */
+    footer {
+      background: var(--color-primary);
+      color: #94A3B8;
+      padding: 40px 5%;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .85rem;
+    }
+    footer .footer-logo {
+      font-family: 'Poppins', sans-serif; font-weight: 700;
+      color: #fff; font-size: 1.1rem;
+    }
+    footer a { color: #94A3B8; text-decoration: none; transition: color .15s; }
+    footer a:hover { color: #fff; }
+    .footer-links { display: flex; gap: 24px; }
+
+    @media (max-width: 768px) {
+      .results-body { grid-template-columns: 1fr; }
+      .results-left { border-right: none; border-bottom: 1px solid var(--color-border); }
+      .steps::before { display: none; }
+      .steps { flex-direction: column; gap: 24px; }
+      .social-proof { flex-wrap: wrap; gap: 20px; }
+      .sp-divider { display: none; }
+      footer { flex-direction: column; gap: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    SiteAudit
+  </a>
+  <div class="nav-links">
+    <a href="#">Features</a>
+    <a href="#">Pricing</a>
+    <a href="#">Docs</a>
+    <button class="btn-nav">Start Free Audit</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    AI-Powered · Instant Results · No Sign-up Needed
+  </div>
+  <h1>Your website might be <span>costing you customers</span></h1>
+  <p>Get a complete performance, SEO, and UX audit in 30 seconds. We'll tell you exactly what to fix — in plain English.</p>
+
+  <form class="url-form" onsubmit="return false;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" style="flex-shrink:0;align-self:center"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="url" placeholder="https://yourbusiness.com" aria-label="Website URL" />
+    <button type="submit" class="btn-primary">Audit My Site →</button>
+  </form>
+  <p class="hero-note">Free · Takes ~30 seconds · No account required</p>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div class="social-proof">
+  <div class="sp-item">
+    <div class="sp-num">12,400+</div>
+    <div class="sp-label">Sites Audited</div>
+  </div>
+  <div class="sp-divider"></div>
+  <div class="sp-item">
+    <div class="sp-num">4.9 ★</div>
+    <div class="sp-label">Average Rating</div>
+  </div>
+  <div class="sp-divider"></div>
+  <div class="sp-item">
+    <div class="sp-num">30s</div>
+    <div class="sp-label">Avg. Audit Time</div>
+  </div>
+  <div class="sp-divider"></div>
+  <div class="sp-item">
+    <div class="sp-num">100%</div>
+    <div class="sp-label">Free to Use</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="section-label">
+    <h2>Everything your website needs, analysed</h2>
+    <p>A comprehensive audit across four critical dimensions — delivered in a PDF you can hand to any developer.</p>
+  </div>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon fi-blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <h3>Performance Audit</h3>
+      <p>Core Web Vitals, load time, First Contentful Paint, and Time to Interactive — straight from Google PageSpeed Insights.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </div>
+      <h3>SEO Audit</h3>
+      <p>Meta tags, heading structure, image alt text, robots.txt, and more. Know exactly why Google may be ignoring you.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </div>
+      <h3>Design & UX Check</h3>
+      <p>CTA visibility, mobile responsiveness, trust signals, and contrast ratios. The stuff that turns visitors into customers.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon fi-orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+      </div>
+      <h3>AI Report</h3>
+      <p>A plain-English summary written by Claude AI — prioritised recommendations so you know what to fix first, and why.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS DEMO -->
+<section class="results-section">
+  <div class="results-inner">
+    <div class="section-label" style="margin-bottom:40px">
+      <h2>See your results instantly</h2>
+      <p>Real scores. Real recommendations. Export to PDF.</p>
+    </div>
+
+    <div class="results-card">
+      <div class="results-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <div class="url-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          example-business.com
+        </div>
+      </div>
+
+      <div class="results-body">
+        <!-- Scores -->
+        <div class="results-left">
+          <h3 style="font-size:1rem;font-weight:700;color:var(--color-primary);margin-bottom:20px">Audit Scores</h3>
+
+          <div class="score-row">
+            <span class="score-label">Performance</span>
+            <div class="score-bar-wrap">
+              <div class="score-bar"><div class="score-fill fill-yellow" style="width:68%"></div></div>
+            </div>
+            <span class="score-val sv-yellow">68</span>
+          </div>
+
+          <div class="score-row">
+            <span class="score-label">SEO</span>
+            <div class="score-bar-wrap">
+              <div class="score-bar"><div class="score-fill fill-green" style="width:85%"></div></div>
+            </div>
+            <span class="score-val sv-green">85</span>
+          </div>
+
+          <div class="score-row">
+            <span class="score-label">Accessibility</span>
+            <div class="score-bar-wrap">
+              <div class="score-bar"><div class="score-fill fill-red" style="width:42%"></div></div>
+            </div>
+            <span class="score-val sv-red">42</span>
+          </div>
+
+          <div class="score-row">
+            <span class="score-label">Best Practices</span>
+            <div class="score-bar-wrap">
+              <div class="score-bar"><div class="score-fill fill-green" style="width:91%"></div></div>
+            </div>
+            <span class="score-val sv-green">91</span>
+          </div>
+
+          <div style="margin-top:24px;padding:16px;background:var(--color-muted);border-radius:var(--radius-md)">
+            <div style="font-size:.75rem;color:#64748B;font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Overall Score</div>
+            <div style="font-size:2.8rem;font-weight:800;font-family:'Poppins',sans-serif;color:var(--color-primary);line-height:1">71<span style="font-size:1.2rem;color:#64748B">/100</span></div>
+            <div style="font-size:.8rem;color:#F59E0B;font-weight:600;margin-top:4px">⚠ Needs Improvement</div>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="results-right">
+          <h3>AI Recommendations</h3>
+          <div class="reco-item">
+            <span class="reco-priority rp-high">HIGH</span>
+            <div class="reco-text"><strong>Fix image alt text</strong> — 11 images are missing alt attributes, hurting both accessibility and SEO rankings.</div>
+          </div>
+          <div class="reco-item">
+            <span class="reco-priority rp-high">HIGH</span>
+            <div class="reco-text"><strong>Compress hero image</strong> — Your 2.4MB homepage image is slowing load time by ~3 seconds on mobile.</div>
+          </div>
+          <div class="reco-item">
+            <span class="reco-priority rp-medium">MED</span>
+            <div class="reco-text"><strong>Add a clear call-to-action</strong> — Visitors can't easily see what action to take. Add a prominent button above the fold.</div>
+          </div>
+          <div class="reco-item">
+            <span class="reco-priority rp-low">LOW</span>
+            <div class="reco-text"><strong>Update meta description</strong> — Your current description is 42 characters — Google recommends 150–160.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-footer">
+        <span class="rf-note">Audited just now · Powered by Claude AI + Google PageSpeed</span>
+        <button class="btn-pdf">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 004.561 21H19.439a2 2 0 001.94-1.515L22 17"/></svg>
+          Download PDF Report
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hiw">
+  <div class="hiw-inner">
+    <div class="section-label">
+      <h2>How it works</h2>
+      <p>From URL to actionable report in under a minute.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h4>Enter your URL</h4>
+        <p>Paste your website address — no sign-up, no credit card.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h4>We run the audit</h4>
+        <p>Performance, SEO, design, and accessibility checks — all in ~30 seconds.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h4>Get your report</h4>
+        <p>AI-written plain-English recommendations, prioritised for impact.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h4>Download PDF</h4>
+        <p>Share with your developer or keep it for your records.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <h2>Ready to see how your site scores?</h2>
+  <p>Join 12,400+ business owners who've already improved their websites.</p>
+  <div class="cta-url-form">
+    <input type="url" placeholder="https://yourbusiness.com" aria-label="Website URL" />
+    <button class="btn-primary">Audit Now →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">SiteAudit</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+  <div>© 2026 SiteAudit. All rights reserved.</div>
+</footer>
+
+</body>
+</html>
