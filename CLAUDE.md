@@ -69,7 +69,7 @@ DATABASE_URL=
 - [ ] M3: BeautifulSoup SEO + design scraper
 - [ ] M4: Claude API generates plain-English report from audit data
 - [ ] M5: React frontend — URL input + results dashboard
-- [ ] M6: PDF export
+- [x] M6: PDF export
 - [ ] M7: User auth + save past audits
 - [ ] M8: Deploy live
 
