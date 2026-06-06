@@ -8,22 +8,54 @@ from fpdf import FPDF, XPos, YPos
 
 
 # Colour palette
-NAVY = (30, 58, 95)
+CORAL = (226, 96, 63)
+CORAL_LIGHT = (251, 233, 227)
+INK = (28, 26, 23)
 WHITE = (255, 255, 255)
 LIGHT_GRAY = (249, 250, 251)
 MID_GRAY = (107, 114, 128)
 BORDER_GRAY = (229, 231, 235)
-GREEN = (22, 163, 74)
-GREEN_BG = (240, 253, 244)
-AMBER = (217, 119, 6)
-AMBER_BG = (255, 251, 235)
-RED = (220, 38, 38)
-RED_BG = (254, 242, 242)
-BLUE_LIGHT = (219, 234, 254)
-BLUE_BG = (248, 250, 255)
-DARK_TEXT = (17, 24, 39)
-SECTION_TITLE_COLOR = (30, 58, 95)
+GREEN = (47, 94, 53)
+GREEN_BG = (230, 240, 228)
+AMBER = (138, 90, 14)
+AMBER_BG = (247, 236, 218)
+RED = (168, 50, 40)
+RED_BG = (247, 227, 221)
+DARK_TEXT = (28, 26, 23)
 
+
+# ---------------------------------------------------------------------------
+# Text sanitiser — Helvetica is Latin-1 only; replace common Unicode chars
+# ---------------------------------------------------------------------------
+
+_UNICODE_SUBS = {
+    '—': '--',    # em dash
+    '–': '-',     # en dash
+    '‘': "'",     # left single quote
+    '’': "'",     # right single quote
+    '“': '"',     # left double quote
+    '”': '"',     # right double quote
+    '…': '...',   # ellipsis
+    '•': '-',     # bullet
+    ' ': ' ',     # non-breaking space
+    '®': '(R)',
+    '©': '(c)',
+    '™': '(TM)',
+}
+
+
+def _safe(text: str) -> str:
+    """Normalise to a Latin-1-safe string for Helvetica."""
+    if not text:
+        return ''
+    for src, dst in _UNICODE_SUBS.items():
+        text = text.replace(src, dst)
+    return text.encode('latin-1', errors='ignore').decode('latin-1')
+
+
+# ---------------------------------------------------------------------------
+# Score helpers
+# ---------------------------------------------------------------------------
 
 def _score_color(score: int) -> tuple:
     if score >= 70:
@@ -41,6 +73,10 @@ def _score_bg(score: int) -> tuple:
     return RED_BG
 
 
+# ---------------------------------------------------------------------------
+# Public entry point
+# ---------------------------------------------------------------------------
+
 def generate_pdf(
     url: str,
     business_name: str,
@@ -50,7 +86,6 @@ def generate_pdf(
 ) -> bytes:
     pdf = _AuditPDF(url=url, business_name=business_name)
     pdf.add_page()
-
     pdf.set_auto_page_break(auto=True, margin=15)
 
     _render_scores(pdf, performance)
@@ -62,41 +97,40 @@ def generate_pdf(
     return bytes(pdf.output())
 
 
+# ---------------------------------------------------------------------------
+# PDF class
+# ---------------------------------------------------------------------------
+
 class _AuditPDF(FPDF):
     def __init__(self, url: str, business_name: str):
         super().__init__()
-        self._url = url
-        self._business_name = business_name
+        self._url = _safe(url)
+        self._business_name = _safe(business_name)
         self._audit_date = date.today().strftime("%d %B %Y").lstrip("0")
         self.set_margins(left=15, top=0, right=15)
 
     def header(self):
-        # Navy header block
-        self.set_fill_color(*NAVY)
+        self.set_fill_color(*INK)
         self.rect(x=0, y=0, w=210, h=42, style="F")
 
-        # Brand tag
         self.set_xy(15, 8)
         self.set_font("Helvetica", "B", 7)
-        self.set_text_color(147, 197, 253)
+        self.set_text_color(*CORAL)
         self.cell(0, 5, "WEBSITE AUDITOR", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
-        # Business name
         self.set_x(15)
         self.set_font("Helvetica", "B", 16)
         self.set_text_color(*WHITE)
         self.cell(130, 8, self._business_name[:50], new_x=XPos.RIGHT, new_y=YPos.TOP)
 
-        # Date top-right
         self.set_xy(145, 8)
         self.set_font("Helvetica", "", 7)
-        self.set_text_color(147, 197, 253)
+        self.set_text_color(180, 180, 180)
         self.cell(50, 5, f"Report: {self._audit_date}", align="R", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
-        # URL
         self.set_x(15)
         self.set_font("Helvetica", "", 8)
-        self.set_text_color(191, 219, 254)
+        self.set_text_color(140, 140, 140)
         self.cell(0, 5, self._url[:80], new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
         self.ln(6)
@@ -111,17 +145,20 @@ class _AuditPDF(FPDF):
     def section_title(self, title: str):
         self.ln(4)
         self.set_font("Helvetica", "B", 11)
-        self.set_text_color(*SECTION_TITLE_COLOR)
-        self.cell(0, 7, title, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-        # Underline
+        self.set_text_color(*INK)
+        self.cell(0, 7, _safe(title), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         x = self.get_x()
         y = self.get_y()
-        self.set_draw_color(*BLUE_LIGHT)
+        self.set_draw_color(*CORAL)
         self.set_line_width(0.5)
         self.line(x, y, x + 180, y)
         self.ln(3)
         self.set_text_color(*DARK_TEXT)
 
+
+# ---------------------------------------------------------------------------
+# Section renderers
+# ---------------------------------------------------------------------------
 
 def _render_scores(pdf: _AuditPDF, performance: dict):
     pdf.section_title("Performance Scores")
@@ -140,21 +177,16 @@ def _render_scores(pdf: _AuditPDF, performance: dict):
 
     for i, (label, score) in enumerate(scores):
         x = start_x + i * (card_w + gap)
-        bg = _score_bg(score)
-        color = _score_color(score)
-
-        pdf.set_fill_color(*bg)
-        pdf.set_draw_color(*color)
+        pdf.set_fill_color(*_score_bg(score))
+        pdf.set_draw_color(*_score_color(score))
         pdf.set_line_width(0.3)
         pdf.rect(x, y, card_w, card_h, style="FD")
 
-        # Score number
         pdf.set_xy(x, y + 4)
         pdf.set_font("Helvetica", "B", 24)
-        pdf.set_text_color(*color)
+        pdf.set_text_color(*_score_color(score))
         pdf.cell(card_w, 12, str(score), align="C", new_x=XPos.RIGHT, new_y=YPos.TOP)
 
-        # Label
         pdf.set_xy(x, y + 17)
         pdf.set_font("Helvetica", "B", 7)
         pdf.set_text_color(*MID_GRAY)
@@ -189,13 +221,13 @@ def _render_seo_findings(pdf: _AuditPDF, seo: dict):
     total_images = seo.get("total_images", 0)
 
     rows = [
-        ("Page Title",       title_info.get("present", False), title_info.get("value", "—")[:60] or "—"),
-        ("Meta Description", meta_info.get("present", False),  (meta_info.get("value") or "Not set")[:60]),
+        ("Page Title",       title_info.get("present", False), _safe(title_info.get("value", "-")[:60] or "-")),
+        ("Meta Description", meta_info.get("present", False),  _safe((meta_info.get("value") or "Not set")[:60])),
         ("H1 Heading",       seo.get("has_h1", False),         f"{seo.get('h1_count', 0)} found"),
-        ("HTTPS / Secure",   seo.get("has_https", False),       "Secure" if seo.get("has_https") else "Not secure"),
+        ("HTTPS / Secure",   seo.get("has_https", False),      "Secure" if seo.get("has_https") else "Not secure"),
         ("Mobile Viewport",  seo.get("has_viewport_meta", False), "Configured" if seo.get("has_viewport_meta") else "Missing"),
-        ("Phone Number",     seo.get("has_phone_number", False),   "Found" if seo.get("has_phone_number") else "Not found"),
-        ("Call to Action",   seo.get("has_cta_above_fold", False), "Found" if seo.get("has_cta_above_fold") else "Not found"),
+        ("Phone Number",     seo.get("has_phone_number", False),  "Found" if seo.get("has_phone_number") else "Not found"),
+        ("Call to Action",   seo.get("has_cta_above_fold", False),"Found" if seo.get("has_cta_above_fold") else "Not found"),
         ("Image Alt Text",   images_missing == 0,
          f"{total_images - images_missing}/{total_images} images have alt text" if total_images else "No images"),
     ]
@@ -204,15 +236,13 @@ def _render_seo_findings(pdf: _AuditPDF, seo: dict):
     col_widths = [55, 22, 103]
 
     y = pdf.get_y()
-    x_start = pdf.get_x()
 
-    # Header row
     pdf.set_fill_color(*LIGHT_GRAY)
     pdf.set_font("Helvetica", "B", 8)
     pdf.set_text_color(*MID_GRAY)
     pdf.set_draw_color(*BORDER_GRAY)
     pdf.set_line_width(0.2)
-    for i, (header, w) in enumerate(zip(headers, col_widths)):
+    for header, w in zip(headers, col_widths):
         pdf.cell(w, 7, header.upper(), border=1, fill=True, align="L",
                  new_x=XPos.RIGHT, new_y=YPos.TOP)
     pdf.ln(7)
@@ -224,15 +254,9 @@ def _render_seo_findings(pdf: _AuditPDF, seo: dict):
         pdf.set_text_color(*DARK_TEXT)
         pdf.cell(col_widths[0], 7, name, border=1, fill=fill, new_x=XPos.RIGHT, new_y=YPos.TOP)
 
-        # Pass/Fail badge
-        if passed:
-            pdf.set_text_color(*GREEN)
-            status_text = "Pass"
-        else:
-            pdf.set_text_color(*RED)
-            status_text = "Fail"
+        pdf.set_text_color(*(GREEN if passed else RED))
         pdf.set_font("Helvetica", "B", 8)
-        pdf.cell(col_widths[1], 7, status_text, border=1, fill=fill, align="C",
+        pdf.cell(col_widths[1], 7, "Pass" if passed else "Fail", border=1, fill=fill, align="C",
                  new_x=XPos.RIGHT, new_y=YPos.TOP)
 
         pdf.set_font("Helvetica", "", 8)
@@ -268,7 +292,7 @@ def _render_content_stats(pdf: _AuditPDF, seo: dict):
 
         pdf.set_xy(x, y + 3)
         pdf.set_font("Helvetica", "B", 16)
-        pdf.set_text_color(*SECTION_TITLE_COLOR)
+        pdf.set_text_color(*INK)
         pdf.cell(card_w, 9, value, align="C", new_x=XPos.RIGHT, new_y=YPos.TOP)
 
         pdf.set_xy(x, y + 13)
@@ -283,40 +307,96 @@ def _render_content_stats(pdf: _AuditPDF, seo: dict):
 def _render_ai_report(pdf: _AuditPDF, ai_report: dict):
     pdf.section_title("AI-Generated Recommendations")
 
-    summary = ai_report.get("summary", "No report available.")
+    summary = _safe(ai_report.get("summary", "No report available."))
+    recommendations = ai_report.get("recommendations", [])
 
-    # Light blue box background
+    # Summary box — pass 1: invisible text to measure height
     box_x = pdf.get_x()
     box_y = pdf.get_y()
     box_w = 180
 
-    pdf.set_fill_color(*BLUE_BG)
-    pdf.set_draw_color(*BLUE_LIGHT)
-    pdf.set_line_width(0.3)
-
-    # Measure required height
-    pdf.set_font("Helvetica", "", 9)
-    pdf.set_text_color(*DARK_TEXT)
-
-    # Draw the text inside the box
     pdf.set_xy(box_x + 4, box_y + 4)
-    pdf.multi_cell(box_w - 8, 5.5, summary, fill=False, border=0,
-                   new_x=XPos.LMARGIN, new_y=YPos.NEXT)
-
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(*CORAL_LIGHT)  # matches bg — covered by rect in pass 2
+    pdf.multi_cell(box_w - 8, 5.5, summary, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     end_y = pdf.get_y() + 4
 
-    # Draw the box behind the text (draw after so text is on top)
+    # Pass 2: draw background box (drawn over pass-1 text in PDF paint order)
+    pdf.set_fill_color(*CORAL_LIGHT)
+    pdf.set_draw_color(*CORAL)
+    pdf.set_line_width(0.3)
     pdf.rect(box_x, box_y, box_w, end_y - box_y, style="FD")
 
-    # Re-render text on top of the box
+    # Pass 3: draw readable text on top of the box
     pdf.set_xy(box_x + 4, box_y + 4)
-    pdf.set_fill_color(*BLUE_BG)
     pdf.set_font("Helvetica", "", 9)
     pdf.set_text_color(*DARK_TEXT)
-    pdf.multi_cell(box_w - 8, 5.5, summary, fill=False, border=0,
-                   new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.multi_cell(box_w - 8, 5.5, summary, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     pdf.set_y(end_y + 2)
+
+    if not recommendations:
+        return
+
+    # Recommendations numbered list
+    pdf.ln(2)
+    priority_colors = {"High": RED, "Medium": AMBER, "Low": GREEN}
+    priority_bgs = {"High": RED_BG, "Medium": AMBER_BG, "Low": GREEN_BG}
+    circle_r = 4.5
+
+    for i, rec in enumerate(recommendations):
+        title = _safe(str(rec.get("title", "")))
+        body = _safe(str(rec.get("body", "")))
+        priority = str(rec.get("priority", "Medium"))
+        p_color = priority_colors.get(priority, AMBER)
+        p_bg = priority_bgs.get(priority, AMBER_BG)
+
+        item_x = pdf.get_x()
+        item_y = pdf.get_y()
+
+        # Number circle — circle(x, y, r) takes centre coordinates
+        pdf.set_fill_color(*INK)
+        pdf.circle(item_x + circle_r, item_y + circle_r, circle_r, style="F")
+        pdf.set_font("Helvetica", "B", 7)
+        pdf.set_text_color(*WHITE)
+        pdf.set_xy(item_x, item_y)
+        pdf.cell(circle_r * 2, circle_r * 2, str(i + 1), align="C",
+                 new_x=XPos.RIGHT, new_y=YPos.TOP)
+
+        # Title
+        pdf.set_xy(item_x + 13, item_y + 1)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(*INK)
+        pdf.cell(142, 6, title, new_x=XPos.RIGHT, new_y=YPos.TOP)
+
+        # Priority badge
+        badge_x = item_x + 157
+        pdf.set_fill_color(*p_bg)
+        pdf.set_draw_color(*p_color)
+        pdf.set_line_width(0.2)
+        pdf.rect(badge_x, item_y + 1, 22, 6, style="FD")
+        pdf.set_xy(badge_x, item_y + 1)
+        pdf.set_font("Helvetica", "B", 7)
+        pdf.set_text_color(*p_color)
+        pdf.cell(22, 6, priority.upper(), align="C")
+
+        # Body text
+        pdf.set_xy(item_x + 13, item_y + 9)
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(*MID_GRAY)
+        pdf.multi_cell(165, 5, body, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+
+        # Divider between items
+        if i < len(recommendations) - 1:
+            div_y = pdf.get_y() + 2
+            pdf.set_draw_color(*BORDER_GRAY)
+            pdf.set_line_width(0.2)
+            pdf.line(item_x, div_y, item_x + 180, div_y)
+            pdf.set_y(div_y + 3)
+        else:
+            pdf.ln(4)
+
+    pdf.set_text_color(*DARK_TEXT)
 
 
 def _table(pdf: _AuditPDF, headers: list, rows: list, col_widths: list):
@@ -327,22 +407,17 @@ def _table(pdf: _AuditPDF, headers: list, rows: list, col_widths: list):
     pdf.set_line_width(0.2)
 
     for header, w in zip(headers, col_widths):
-        pdf.cell(w, 7, header.upper(), border=1, fill=True, align="L",
+        pdf.cell(w, 7, _safe(header.upper()), border=1, fill=True, align="L",
                  new_x=XPos.RIGHT, new_y=YPos.TOP)
     pdf.ln(7)
 
     for i, row in enumerate(rows):
         fill = i % 2 == 0
         pdf.set_fill_color(*(LIGHT_GRAY if fill else WHITE))
-        pdf.set_font("Helvetica", "", 8 if i > 0 else 8)
         pdf.set_text_color(*DARK_TEXT)
         for j, (cell, w) in enumerate(zip(row, col_widths)):
-            is_value = j == len(row) - 1
-            if is_value:
-                pdf.set_font("Helvetica", "B", 8)
-            else:
-                pdf.set_font("Helvetica", "", 8)
-            pdf.cell(w, 7, str(cell), border=1, fill=fill,
+            pdf.set_font("Helvetica", "B" if j == len(row) - 1 else "", 8)
+            pdf.cell(w, 7, _safe(str(cell)), border=1, fill=fill,
                      new_x=XPos.RIGHT, new_y=YPos.TOP)
         pdf.ln(7)
 

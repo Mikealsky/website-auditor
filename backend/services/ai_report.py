@@ -1,6 +1,7 @@
 import os
-import httpx
+import re
 import json
+import httpx
 
 CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 MODEL = "claude-sonnet-4-6"
@@ -8,8 +9,8 @@ MODEL = "claude-sonnet-4-6"
 
 async def generate_report(url: str, business_name: str, audit_data: dict) -> dict:
     """
-    Sends audit results to Claude and returns a plain-English report
-    with prioritised recommendations for the business owner.
+    Sends audit results to Claude and returns a structured report with a
+    plain-English summary and a prioritised recommendations list.
     """
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -25,12 +26,13 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
 
     body = {
         "model": MODEL,
-        "max_tokens": 1000,
+        "max_tokens": 1024,
         "system": (
             "You are a friendly web consultant helping small business owners improve their websites. "
             "Write in plain English — no technical jargon. The business owner is not a developer. "
-            "Be direct, specific, and encouraging. Always explain WHY something matters in terms of "
-            "customers and revenue, not just technical metrics."
+            "Be direct, specific, and encouraging. Explain why each issue matters in terms of "
+            "customers and revenue, not technical metrics. "
+            "Always respond with valid JSON exactly as instructed — no markdown fences, no extra text."
         ),
         "messages": [{"role": "user", "content": prompt}],
     }
@@ -46,16 +48,31 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
             error_detail = e.response.json().get("error", {}).get("message", "")
         except Exception:
             pass
-        return {"summary": f"AI report unavailable: {error_detail or str(e)}", "model": MODEL, "error": True}
+        return {"summary": f"AI report unavailable: {error_detail or str(e)}", "recommendations": [], "model": MODEL, "error": True}
     except httpx.RequestError as e:
-        return {"summary": f"AI report unavailable: could not reach Anthropic API ({e})", "model": MODEL, "error": True}
+        return {"summary": f"AI report unavailable: could not reach Anthropic API ({e})", "recommendations": [], "model": MODEL, "error": True}
 
-    report_text = data["content"][0]["text"]
+    report_text = data["content"][0]["text"].strip()
 
-    return {
-        "summary": report_text,
-        "model": MODEL,
-    }
+    # Strip accidental markdown fences
+    if report_text.startswith("```"):
+        report_text = re.sub(r'^```(?:json)?\n?', '', report_text)
+        report_text = re.sub(r'\n?```$', '', report_text.strip())
+
+    try:
+        parsed = json.loads(report_text)
+        return {
+            "summary": parsed.get("summary", ""),
+            "recommendations": parsed.get("recommendations", []),
+            "model": MODEL,
+        }
+    except (json.JSONDecodeError, KeyError):
+        # Raw text fallback — at least the summary renders
+        return {
+            "summary": report_text,
+            "recommendations": [],
+            "model": MODEL,
+        }
 
 
 def _build_prompt(url: str, business_name: str, audit_data: dict) -> str:
@@ -63,52 +80,52 @@ def _build_prompt(url: str, business_name: str, audit_data: dict) -> str:
     seo = audit_data.get("seo", {})
 
     issues = []
-
     if perf.get("performance_score", 100) < 50:
-        issues.append(f"Very slow load time ({perf.get('load_time_seconds', 'unknown')} on mobile)")
+        issues.append(f"Very slow load time ({perf.get('load_time_seconds', 'unknown')}s on mobile)")
     if not seo.get("has_meta_description", {}).get("present", True):
-        issues.append("Missing meta description (invisible to Google search results)")
+        issues.append("Missing meta description (invisible in Google search results)")
     if seo.get("images_missing_alt", 0) > 0:
         issues.append(f"{seo['images_missing_alt']} images have no alt text (hurts SEO and accessibility)")
     if not seo.get("has_https", True):
-        issues.append("Site is not secure (no HTTPS) — browsers warn visitors about this")
+        issues.append("Site is not secure (no HTTPS) — browsers warn visitors away")
     if not seo.get("has_phone_number", True):
         issues.append("No phone number visible on the page")
     if not seo.get("has_cta_above_fold", True):
-        issues.append("No clear call-to-action visible")
+        issues.append("No clear call-to-action visible above the fold")
     if seo.get("h1_count", 1) == 0:
-        issues.append("No main heading (H1) — Google can't understand what the page is about")
+        issues.append("No main heading (H1) — Google can't tell what the page is about")
 
     issues_text = "\n".join(f"- {i}" for i in issues) if issues else "- No major issues found"
 
-    return f"""
-I have audited the website for {business_name} at {url}.
+    return f"""Audit results for {business_name} ({url}):
 
-Here are the key findings:
+Scores (out of 100): Performance {perf.get('performance_score', 'N/A')} | SEO {perf.get('seo_score', 'N/A')} | Accessibility {perf.get('accessibility_score', 'N/A')}
+Load time: {perf.get('load_time_seconds', 'N/A')}s
 
-Performance scores (out of 100):
-- Overall performance: {perf.get('performance_score', 'N/A')}
-- SEO score: {perf.get('seo_score', 'N/A')}
-- Accessibility score: {perf.get('accessibility_score', 'N/A')}
-
-Key issues identified:
+Issues found:
 {issues_text}
 
-Please write:
-1. A 2-3 sentence plain-English summary of the website's overall health
-2. A numbered list of the 5 most important improvements, ordered by impact
-3. For each improvement, explain what it is, why it matters to customers, and one concrete action to fix it
+Respond with valid JSON only — no markdown, no text outside the JSON object:
+{{
+  "summary": "2-3 sentences of plain-English overview for the business owner. Name the most urgent problem specifically. No jargon.",
+  "recommendations": [
+    {{
+      "title": "Short action title (max 8 words)",
+      "body": "1-2 sentences on what this is and why it costs them customers or revenue.",
+      "priority": "High"
+    }}
+  ]
+}}
 
-Keep the tone friendly and encouraging — the goal is to help them, not overwhelm them.
-""".strip()
+Return 3-6 recommendations ordered by customer impact. priority must be exactly High, Medium, or Low. High means it is costing them customers right now."""
 
 
 def _mock_report() -> dict:
     return {
         "summary": (
-            "Mock report — set ANTHROPIC_API_KEY in your .env file to generate real AI reports. "
-            "Once connected, Claude will analyse your audit results and produce plain-English "
-            "recommendations tailored to your business."
+            "Mock report — add your ANTHROPIC_API_KEY to backend/.env to generate real AI reports. "
+            "Claude will analyse the audit results and write plain-English recommendations tailored to this business."
         ),
+        "recommendations": [],
         "model": "mock",
     }

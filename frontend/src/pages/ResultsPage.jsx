@@ -27,7 +27,9 @@ export default function ResultsPage({ data, businessName, onReset }) {
 
   const { performance: perf, seo, ai_report } = data
   const checks = deriveChecks(seo)
-  const fixes = deriveFixes(data)
+  const fixes = (ai_report.recommendations?.length > 0)
+    ? ai_report.recommendations.map((r, i) => ({ ...r, n: i + 1 }))
+    : deriveFixes(data)
   const high = fixes.filter((f) => f.priority === 'High')
   const rest = fixes.filter((f) => f.priority !== 'High')
   const host = data.url.replace(/^https?:\/\//, '').replace(/\/$/, '')
@@ -193,7 +195,13 @@ export default function ResultsPage({ data, businessName, onReset }) {
 
             <div className="wa-card" style={{ padding: 22, background: 'var(--ink)', color: '#fff' }}>
               <div className="wa-eyebrow" style={{ color: 'var(--coral-tint-3)', marginBottom: 10 }}>In plain English</div>
-              <p style={{ fontSize: 14.5, lineHeight: 1.55, color: 'rgba(255,255,255,.85)' }}>{ai_report.summary}</p>
+              {ai_report.error ? (
+                <p style={{ fontSize: 14, lineHeight: 1.55, color: 'rgba(255,255,255,.45)', fontStyle: 'italic' }}>
+                  AI summary unavailable — check your API key and credits.
+                </p>
+              ) : (
+                <p style={{ fontSize: 14.5, lineHeight: 1.55, color: 'rgba(255,255,255,.85)' }}>{ai_report.summary}</p>
+              )}
             </div>
 
             <div className="wa-card" style={{ padding: '16px 22px' }}>
