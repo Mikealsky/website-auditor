@@ -29,8 +29,8 @@ DARK_TEXT = (28, 26, 23)
 # ---------------------------------------------------------------------------
 
 _UNICODE_SUBS = {
-    '—': '--',    # em dash
-    '–': '-',     # en dash
+    '—': ' - ',   # em dash
+    '–': ' - ',   # en dash
     '‘': "'",     # left single quote
     '’': "'",     # right single quote
     '“': '"',     # left double quote

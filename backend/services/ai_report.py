@@ -3,6 +3,30 @@ import re
 import json
 import httpx
 
+# Emoji ranges — used to strip any that slip through despite prompt instructions
+_EMOJI_RE = re.compile(
+    "["
+    "\U0001F300-\U0001F5FF"
+    "\U0001F600-\U0001F64F"
+    "\U0001F680-\U0001F6FF"
+    "\U0001F900-\U0001F9FF"
+    "\U0001FA00-\U0001FAFF"
+    "\U00002600-\U000027BF"
+    "\U0001F1E0-\U0001F1FF"
+    "︀-️"
+    "]+",
+    flags=re.UNICODE,
+)
+
+
+def _clean(text: str) -> str:
+    """Remove emojis and normalise dashes in AI-generated text."""
+    text = _EMOJI_RE.sub("", text)
+    text = text.replace("—", " - ").replace("–", " - ")  # em/en dash
+    text = re.sub(r"-{2,}", " - ", text)                           # -- or longer
+    text = re.sub(r"  +", " ", text).strip()
+    return text
+
 CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 MODEL = "claude-sonnet-4-6"
 
@@ -32,6 +56,9 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
             "Write in plain English — no technical jargon. The business owner is not a developer. "
             "Be direct, specific, and encouraging. Explain why each issue matters in terms of "
             "customers and revenue, not technical metrics. "
+            "Do not use emojis anywhere in your response. "
+            "Do not use dashes (hyphens used as dashes), em dashes, or double hyphens. "
+            "Use commas, colons, or full stops instead. "
             "Always respond with valid JSON exactly as instructed — no markdown fences, no extra text."
         ),
         "messages": [{"role": "user", "content": prompt}],
@@ -61,15 +88,22 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
 
     try:
         parsed = json.loads(report_text)
+        recs = [
+            {
+                "title": _clean(str(r.get("title", ""))),
+                "body": _clean(str(r.get("body", ""))),
+                "priority": str(r.get("priority", "Medium")),
+            }
+            for r in parsed.get("recommendations", [])
+        ]
         return {
-            "summary": parsed.get("summary", ""),
-            "recommendations": parsed.get("recommendations", []),
+            "summary": _clean(parsed.get("summary", "")),
+            "recommendations": recs,
             "model": MODEL,
         }
     except (json.JSONDecodeError, KeyError):
-        # Raw text fallback — at least the summary renders
         return {
-            "summary": report_text,
+            "summary": _clean(report_text),
             "recommendations": [],
             "model": MODEL,
         }
