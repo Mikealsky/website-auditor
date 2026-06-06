@@ -1,3 +1,4 @@
+import asyncio
 import ipaddress
 import socket
 from urllib.parse import urlparse
@@ -19,18 +20,19 @@ _BLOCKED_RANGES = [
 ]
 
 
-def _assert_safe_url(url: str) -> None:
+async def _assert_safe_url(url: str) -> None:
     """
     Resolves the URL's hostname to IP addresses and raises ValueError if any
     resolve to a private, loopback, or cloud-metadata range.
     Must be called for every URL before fetching, including redirect destinations.
+    Uses asyncio.to_thread so the blocking DNS lookup does not stall the event loop.
     """
     host = urlparse(url).hostname
     if not host:
         raise ValueError("Could not parse hostname from URL")
 
     try:
-        results = socket.getaddrinfo(host, None)
+        results = await asyncio.to_thread(socket.getaddrinfo, host, None)
     except socket.gaierror as e:
         raise ValueError(f"Could not resolve hostname '{host}': {e}")
 
@@ -54,7 +56,7 @@ async def scrape_seo_audit(url: str) -> dict:
     """
     # SSRF protection: validate before any network I/O
     try:
-        _assert_safe_url(url)
+        await _assert_safe_url(url)
     except ValueError as e:
         return {"error": f"URL not allowed: {e}"}
 
@@ -71,7 +73,7 @@ async def scrape_seo_audit(url: str) -> dict:
                 if next_req is None:
                     break
                 # Re-validate the redirect destination before following
-                _assert_safe_url(str(next_req.url))
+                await _assert_safe_url(str(next_req.url))
                 response = await client.send(next_req)
 
             response.raise_for_status()

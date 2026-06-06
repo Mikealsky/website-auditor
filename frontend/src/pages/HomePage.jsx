@@ -24,18 +24,19 @@ export default function HomePage({ onSubmit, error }) {
   }
 
   return (
-    <div className="wa" style={{ minHeight: '100vh', background: 'var(--bg)', padding: 22, display: 'flex' }}>
+    <main className="wa" style={{ minHeight: '100vh', background: 'var(--bg)', padding: 22, display: 'flex' }}>
       <div className="wa-panel" style={{ flex: 1, padding: 'clamp(20px, 3vw, 34px)', display: 'flex', flexDirection: 'column', gap: 30 }}>
 
         {/* header */}
-        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <header style={{ background: 'var(--ink)', color: '#fff', borderRadius: 'var(--r-lg)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 20 }}>W</div>
+            <div style={{ width: 38, height: 38, borderRadius: '50%', background: '#fff', color: 'var(--ink)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 16 }}>W</div>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 18, lineHeight: 1.1 }}>Website Auditor</div>
-              <div style={{ color: 'var(--muted)', fontSize: 13 }}>Free local-business site check-up</div>
+              <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.1 }}>Website Auditor</div>
+              <div style={{ color: 'rgba(255,255,255,.55)', fontSize: 12 }}>Free local-business check-up</div>
             </div>
           </div>
+          <span className="wa-chip" style={{ background: 'rgba(226,96,63,.2)', color: 'var(--coral-tint-3)', fontSize: 11 }}>Free</span>
         </header>
 
         {/* hero grid */}
@@ -45,11 +46,27 @@ export default function HomePage({ onSubmit, error }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 22, paddingLeft: 6, maxWidth: 600 }}>
             <span className="wa-eyebrow">Free website check-up</span>
             <h1 style={{ fontSize: 'clamp(34px, 4.4vw, 54px)', lineHeight: 1.04, fontWeight: 800, letterSpacing: '-0.03em' }}>
-              See what&rsquo;s quietly costing you customers. <span style={{ fontWeight: 400 }}>👋</span>
+              See what&rsquo;s quietly costing you customers.
             </h1>
             <p style={{ fontSize: 18, color: 'var(--ink-2)', lineHeight: 1.5, maxWidth: 480 }}>
               Pop in your website address and we&rsquo;ll check its speed, search ranking and design&mdash;then hand you a plain-English to-do list to win more local business.
             </p>
+
+            {/* Mobile score preview — hidden on desktop via CSS */}
+            <div className="wa-score-strip" aria-hidden="true">
+              <div className="wa-score-strip-item">
+                <span className="wa-mono" style={{ fontWeight: 800, fontSize: 22, color: 'var(--coral)', lineHeight: 1 }}>42</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)' }}>Performance</span>
+              </div>
+              <div className="wa-score-strip-item">
+                <span className="wa-mono" style={{ fontWeight: 800, fontSize: 22, color: 'var(--amber)', lineHeight: 1 }}>61</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)' }}>SEO</span>
+              </div>
+              <div className="wa-score-strip-item">
+                <span className="wa-mono" style={{ fontWeight: 800, fontSize: 22, color: 'var(--green)', lineHeight: 1 }}>78</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)' }}>Accessibility</span>
+              </div>
+            </div>
 
             {error && (
               <div style={{ background: 'var(--red-soft)', border: '1px solid var(--coral-tint-3)', borderRadius: 'var(--r-md)', padding: '12px 16px', fontSize: 14, color: 'var(--red)' }}>
@@ -58,11 +75,14 @@ export default function HomePage({ onSubmit, error }) {
             )}
 
             <form onSubmit={submit} className="wa-card" style={{ padding: 18, marginTop: 2 }}>
-              <label className="wa-eyebrow" style={{ display: 'block', marginBottom: 10, paddingLeft: 4 }}>Your website address</label>
+              <label htmlFor="url-input" style={{ display: 'block', marginBottom: 10, paddingLeft: 4, fontSize: 14, fontWeight: 600, color: 'var(--ink-2)', letterSpacing: 0 }}>Your website address</label>
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: 10, background: 'var(--card-2)', border: '1px solid var(--line)', borderRadius: 999, padding: '13px 18px' }}>
-                  <span style={{ color: 'var(--muted-2)', fontSize: 17 }}>🔗</span>
+                  <span aria-hidden="true" style={{ color: 'var(--muted-2)', fontSize: 17 }}>🔗</span>
                   <input
+                    id="url-input"
+                    type="url"
+                    autoComplete="url"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="yourbusiness.com"
@@ -114,7 +134,7 @@ export default function HomePage({ onSubmit, error }) {
               </div>
             </div>
             <div className="wa-card" style={{ padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 14, background: 'var(--ink)', color: '#fff' }}>
-              <span style={{ fontSize: 22 }}>📋</span>
+              <span aria-hidden="true" style={{ fontSize: 22 }}>📋</span>
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16 }}>Your step-by-step fix list</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)' }}>Prioritised, plain-English, no jargon</div>
@@ -124,6 +144,6 @@ export default function HomePage({ onSubmit, error }) {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   )
 }

@@ -71,7 +71,7 @@ export default function ResultsPage({ data, businessName, onReset }) {
   }
 
   return (
-    <div className="wa" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
+    <main className="wa" style={{ minHeight: '100vh', background: 'var(--bg)' }}>
       <div style={{ maxWidth: 1320, margin: '0 auto', padding: 22, display: 'flex', flexDirection: 'column', gap: 18 }}>
 
         {/* black header band */}
@@ -82,9 +82,9 @@ export default function ResultsPage({ data, businessName, onReset }) {
               <span style={{ fontWeight: 800, fontSize: 15 }}>Website Auditor</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span className="wa-mono" style={{ fontSize: 13, color: 'rgba(255,255,255,.45)', marginRight: 4 }}>Audit · {today}</span>
+              <span className="wa-mono" style={{ fontSize: 13, color: 'rgba(255,255,255,.58)', marginRight: 4 }}>Audit · {today}</span>
               <button onClick={handleDownload} disabled={downloading} className="wa-btn wa-btn-sm" style={{ background: 'rgba(255,255,255,.1)', color: '#fff' }}>
-                {downloading ? 'Generating…' : '⬇ Download'}
+                {downloading ? 'Generating…' : <><span aria-hidden="true">⬇ </span>Download</>}
               </button>
               <button onClick={onReset} className="wa-btn wa-btn-sm" style={{ background: '#fff', color: 'var(--ink)' }}>
                 New audit
@@ -102,12 +102,12 @@ export default function ResultsPage({ data, businessName, onReset }) {
                 {businessName}
               </h1>
             </div>
-            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', flex: '0 0 auto' }}>
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', flex: '0 0 auto', maxWidth: '100%' }}>
               {scores.map((s, i) => (
-                <div key={i} style={{ width: 148, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 'var(--r-md)', padding: '16px 18px' }}>
+                <div key={i} style={{ flex: '1 1 100px', minWidth: 100, maxWidth: 165, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 'var(--r-md)', padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>{s.pct}</span>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,.45)' }}>/100</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,.48)' }}>/100</span>
                   </div>
                   <div style={{ fontSize: 13.5, fontWeight: 700, marginTop: 10 }}>{s.l}</div>
                   <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,.14)', marginTop: 8 }}>
@@ -131,7 +131,7 @@ export default function ResultsPage({ data, businessName, onReset }) {
 
           {/* left — fix list */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', padding: '2px 4px' }}>🔧 Fix these first</h2>
+            <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', padding: '2px 4px' }}>Fix these first</h2>
 
             {high.length === 0 && (
               <div className="wa-card" style={{ padding: 24, display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -144,7 +144,7 @@ export default function ResultsPage({ data, businessName, onReset }) {
             )}
 
             {high.map((f) => (
-              <div key={f.n} className="wa-card" style={{ padding: 22, display: 'flex', gap: 18, alignItems: 'center', borderLeft: '5px solid var(--coral)' }}>
+              <div key={f.n} className="wa-card" style={{ padding: 22, display: 'flex', gap: 18, alignItems: 'center', background: 'var(--coral-tint-1)', border: '1.5px solid var(--coral-tint-3)' }}>
                 <div style={{ flex: 'none', width: 44, height: 44, borderRadius: '50%', background: 'var(--coral-tint-1)', color: 'var(--coral-700)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 19 }}>{f.n}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: 18 }}>{f.title}</div>
@@ -200,7 +200,7 @@ export default function ResultsPage({ data, businessName, onReset }) {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 2 }}>
                 <h3 style={{ fontSize: 16, fontWeight: 800 }}>Health check</h3>
                 <span style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-                  <b style={{ color: 'var(--green)' }}>{counts.pass}</b> · <b style={{ color: '#a9701f' }}>{counts.warn}</b> · <b style={{ color: 'var(--red)' }}>{counts.fail}</b>
+                  <b style={{ color: 'var(--green-dark)' }}>{counts.pass}</b> · <b style={{ color: 'var(--amber-dark)' }}>{counts.warn}</b> · <b style={{ color: 'var(--red-dark)' }}>{counts.fail}</b>
                 </span>
               </div>
               <CheckList items={checks} />
@@ -220,6 +220,6 @@ export default function ResultsPage({ data, businessName, onReset }) {
         </div>
 
       </div>
-    </div>
+    </main>
   )
 }
