@@ -36,7 +36,7 @@ async def optional_user(authorization: Optional[str] = Header(default=None)) -> 
     token = authorization.removeprefix("Bearer ").strip()
     try:
         return verify_token(token)
-    except HTTPException:
+    except (HTTPException, Exception):
         return None
 
 
