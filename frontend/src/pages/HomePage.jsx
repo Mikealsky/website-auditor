@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import WADonut from '../components/WADonut'
 import AuthButton from '../components/AuthButton'
+import HistoryPage from './HistoryPage'
 
 const EXAMPLES = [
   { host: 'copperkettlecafe.com', label: 'Copper Kettle Café', tag: 'Restaurant' },
@@ -10,6 +11,7 @@ const EXAMPLES = [
 
 export default function HomePage({ onSubmit, error, user, onSignIn, onSignOut, getToken, onViewAudit }) {
   const [url, setUrl] = useState('')
+  const [showHistory, setShowHistory] = useState(false)
 
   const submit = (e) => {
     e && e.preventDefault()
@@ -111,6 +113,26 @@ export default function HomePage({ onSubmit, error, user, onSignIn, onSignOut, g
                 </button>
               ))}
             </div>
+
+            {user && (
+              <div>
+                {!showHistory ? (
+                  <button
+                    onClick={() => setShowHistory(true)}
+                    className="wa-pill"
+                    style={{ fontSize: 13, color: 'var(--muted)' }}
+                  >
+                    View past audits →
+                  </button>
+                ) : (
+                  <HistoryPage
+                    getToken={getToken}
+                    onViewAudit={onViewAudit}
+                    onClose={() => setShowHistory(false)}
+                  />
+                )}
+              </div>
+            )}
           </div>
 
           {/* right preview */}
