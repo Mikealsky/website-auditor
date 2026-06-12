@@ -133,6 +133,11 @@ input::placeholder { color: var(--muted); }
 
 .wa-score-strip { display: none; }
 
+@keyframes wa-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
 @media (max-width: 920px) {
   .wa-resc-grid { grid-template-columns: 1fr !important; }
 }

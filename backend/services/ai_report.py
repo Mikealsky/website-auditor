@@ -20,10 +20,16 @@ _EMOJI_RE = re.compile(
 
 
 def _clean(text: str) -> str:
-    """Remove emojis and normalise dashes in AI-generated text."""
+    """Remove emojis, strip dashes-used-as-punctuation, collapse whitespace."""
     text = _EMOJI_RE.sub("", text)
-    text = text.replace("—", " - ").replace("–", " - ")  # em/en dash
-    text = re.sub(r"-{2,}", " - ", text)                           # -- or longer
+    # Unicode variation selectors and other symbol blocks
+    text = re.sub(r"[︀-️​-‏﻿]", "", text)
+    # Em dash, en dash, horizontal bar, bullet-dash variants → comma+space
+    text = re.sub(r"[—–―]", ", ", text)
+    # Double hyphen or longer used as a dash (not inside a word)
+    text = re.sub(r"(?<!\w)--+(?!\w)", ", ", text)
+    # Hyphen surrounded by spaces (dash usage, not a hyphenated word)
+    text = re.sub(r" - ", ", ", text)
     text = re.sub(r"  +", " ", text).strip()
     return text
 
@@ -52,16 +58,18 @@ async def generate_report(url: str, business_name: str, audit_data: dict) -> dic
         "model": MODEL,
         "max_tokens": 1024,
         "system": (
-            "You are a friendly web consultant helping small business owners improve their websites. "
-            "Write in plain English — no technical jargon. The business owner is not a developer. "
-            "Be direct, specific, and encouraging. Explain why each issue matters in terms of "
-            "customers and revenue, not technical metrics. "
-            "Do not use emojis anywhere in your response. "
-            "Do not use dashes (hyphens used as dashes), em dashes, or double hyphens. "
-            "Use commas, colons, or full stops instead. "
-            "Always respond with valid JSON exactly as instructed — no markdown fences, no extra text."
+            "You are a web consultant writing audit reports for small business owners who are not developers. "
+            "Write in plain English. Name specific problems and their cost to the business. "
+            "STRICT FORMATTING RULES — violating any of these will break the app:\n"
+            "1. No emojis. Not in titles, not in body text, not anywhere.\n"
+            "2. No dashes used as punctuation: no em dash (—), no en dash (–), no double hyphen (--). "
+            "Use a comma or full stop instead.\n"
+            "3. No adverbs ending in -ly (simply, really, quickly, etc.).\n"
+            "4. No filler openers: do not start sentences with 'Here is', 'It is worth', 'The reality is', 'At its core'.\n"
+            "5. Output valid JSON only. No markdown fences. No text outside the JSON object."
         ),
         "messages": [{"role": "user", "content": prompt}],
+        "stop_sequences": ["```"],
     }
 
     try:

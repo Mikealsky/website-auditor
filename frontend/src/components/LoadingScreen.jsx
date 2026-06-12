@@ -1,4 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+const WORKING_LABELS = ['Working...', 'Just one moment', 'Few more tweaks', 'Almost there']
 
 const STEPS = [
   'Loading your homepage',
@@ -11,6 +13,8 @@ const STEPS = [
 export default function LoadingScreen({ url }) {
   const [step, setStep] = useState(0)
   const [pct, setPct] = useState(6)
+  const [workingIdx, setWorkingIdx] = useState(0)
+  const activeStepStart = useRef(Date.now())
 
   const host = (() => {
     try { return new URL(url || '').hostname.replace(/^www\./, '') } catch { return url || '…' }
@@ -19,12 +23,21 @@ export default function LoadingScreen({ url }) {
   useEffect(() => {
     const stepMs = 620
     const stepTimer = setInterval(() => {
-      setStep((s) => (s >= STEPS.length - 1 ? s : s + 1))
+      setStep((s) => {
+        activeStepStart.current = Date.now()
+        setWorkingIdx(0)
+        return s >= STEPS.length - 1 ? s : s + 1
+      })
     }, stepMs)
     const pctTimer = setInterval(() => {
       setPct((p) => Math.min(99, p + Math.random() * 7 + 2))
     }, 130)
-    return () => { clearInterval(stepTimer); clearInterval(pctTimer) }
+    const workingTimer = setInterval(() => {
+      const elapsed = Date.now() - activeStepStart.current
+      const idx = Math.min(Math.floor(elapsed / 4000), WORKING_LABELS.length - 1)
+      setWorkingIdx(idx)
+    }, 500)
+    return () => { clearInterval(stepTimer); clearInterval(pctTimer); clearInterval(workingTimer) }
   }, [])
 
   return (
@@ -69,7 +82,12 @@ export default function LoadingScreen({ url }) {
                   {done ? '✓' : active ? '●' : '•'}
                 </span>
                 <span style={{ fontSize: 15, fontWeight: active ? 700 : 600, color: done || active ? 'var(--ink)' : 'var(--muted)' }}>{label}</span>
-                {active && <span className="wa-chip wa-chip-amber" style={{ marginLeft: 'auto' }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />Working…</span>}
+                {active && (
+                  <span className="wa-chip wa-chip-amber" style={{ marginLeft: 'auto' }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor', animation: 'wa-blink 1s ease-in-out infinite' }} />
+                    {WORKING_LABELS[workingIdx]}
+                  </span>
+                )}
                 {done && <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--muted)' }} className="wa-mono">done</span>}
               </div>
             )
