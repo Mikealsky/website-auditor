@@ -154,6 +154,10 @@ input::placeholder { color: var(--muted); }
   .wa-plan-aside { border-right: none !important; border-bottom: 1px solid var(--line); }
 }
 @media (max-width: 760px) {
+  .wa-hero { grid-template-columns: 1fr !important; }
+  .wa-hero > div:last-child { display: none !important; } /* hide hero visual on mobile */
+  .wa-acct { grid-template-columns: 1fr !important; }
+  .wa-acct > div:first-child { display: none !important; } /* hide left benefits panel on small screens */
   .wa-landing-grid { grid-template-columns: 1fr !important; }
   .wa-landing-preview { display: none !important; }
   .wa-score-strip {
