@@ -21,7 +21,7 @@ function CheckList({ items }) {
   )
 }
 
-export default function ResultsPage({ data, businessName, onReset }) {
+export default function ResultsPage({ data, businessName, onReset, onViewPlan }) {
   const [downloading, setDownloading] = useState(false)
   const [downloadErr, setDownloadErr] = useState(null)
 
@@ -219,12 +219,19 @@ export default function ResultsPage({ data, businessName, onReset }) {
         {/* CTA footer */}
         <div style={{ background: 'linear-gradient(110deg, var(--coral) 0%, var(--coral-600) 100%)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(22px,2.6vw,26px) clamp(24px,3vw,34px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
           <div>
-            <h3 style={{ fontSize: 'clamp(20px,2.4vw,26px)', fontWeight: 800, letterSpacing: '-0.02em' }}>Want help fixing this?</h3>
-            <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.85)', marginTop: 6 }}>Run another audit or download your full PDF report to share with a developer.</p>
+            <h3 style={{ fontSize: 'clamp(20px,2.4vw,26px)', fontWeight: 800, letterSpacing: '-0.02em' }}>Ready to fix these issues?</h3>
+            <p style={{ fontSize: 15.5, color: 'rgba(255,255,255,.85)', marginTop: 6 }}>View your step-by-step improvement plan with code examples, or audit another site.</p>
           </div>
-          <button onClick={onReset} className="wa-btn" style={{ flex: 'none', background: '#fff', color: 'var(--coral-700)', padding: '16px 28px', fontSize: 16 }}>
-            Audit another site →
-          </button>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', flex: 'none' }}>
+            {onViewPlan && (
+              <button onClick={onViewPlan} className="wa-btn" style={{ background: '#fff', color: 'var(--coral-700)', padding: '16px 28px', fontSize: 16 }}>
+                View improvement plan →
+              </button>
+            )}
+            <button onClick={onReset} className="wa-btn" style={{ background: 'rgba(255,255,255,.18)', color: '#fff', padding: '16px 28px', fontSize: 16 }}>
+              Audit another site
+            </button>
+          </div>
         </div>
 
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import HomePage from './pages/HomePage'
 import ResultsPage from './pages/ResultsPage'
+import ImprovementPlan from './pages/ImprovementPlan'
 import LoadingScreen from './components/LoadingScreen'
 import { useAuth } from './hooks/useAuth'
 
@@ -53,8 +54,11 @@ export default function App() {
   }
 
   if (view === 'loading') return <LoadingScreen url={currentUrl} />
+  if (view === 'plan') return (
+    <ImprovementPlan data={auditData} businessName={businessName} onBack={() => setView('results')} />
+  )
   if (view === 'results') return (
-    <ResultsPage data={auditData} businessName={businessName} onReset={handleReset} />
+    <ResultsPage data={auditData} businessName={businessName} onReset={handleReset} onViewPlan={() => setView('plan')} />
   )
   return (
     <HomePage
