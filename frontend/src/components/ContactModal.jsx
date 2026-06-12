@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
-export default function ContactModal({ fixTitle, businessName, onClose }) {
+export default function ContactModal({ fixTitle, businessName, onClose, open }) {
+  if (!open && open !== undefined) return null
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [note, setNote] = useState('')
@@ -9,8 +10,9 @@ export default function ContactModal({ fixTitle, businessName, onClose }) {
   const submit = (e) => {
     e.preventDefault()
     // Fall back to mailto since we don't have a contact endpoint yet
-    const subject = encodeURIComponent(`Website fix request: ${fixTitle}`)
-    const body = encodeURIComponent(`Hi,\n\nI'd like help fixing: ${fixTitle}\nBusiness: ${businessName || 'N/A'}\n\nNote: ${note}\n\nName: ${name}\nEmail: ${email}`)
+    const topic = fixTitle || `improving the website for ${businessName || 'my business'}`
+    const subject = encodeURIComponent(`Website fix request: ${topic}`)
+    const body = encodeURIComponent(`Hi,\n\nI'd like help with: ${topic}\nBusiness: ${businessName || 'N/A'}\n\nNote: ${note}\n\nName: ${name}\nEmail: ${email}`)
     window.location.href = `mailto:hello@websiteauditor.app?subject=${subject}&body=${body}`
     setSent(true)
   }
@@ -33,7 +35,7 @@ export default function ContactModal({ fixTitle, businessName, onClose }) {
         </div>
 
         <div style={{ background: 'var(--coral-tint-1)', border: '1px solid var(--coral-tint-3)', borderRadius: 'var(--r-md)', padding: '10px 14px', fontSize: 13.5, fontWeight: 600, color: 'var(--coral-700)' }}>
-          Fix: {fixTitle}
+          {fixTitle ? `Fix: ${fixTitle}` : `Improve website${businessName ? ` for ${businessName}` : ''}`}
         </div>
 
         {sent ? (
