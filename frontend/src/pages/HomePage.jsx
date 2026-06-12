@@ -18,12 +18,13 @@ export default function HomePage({ onSubmit, error, user, onSignIn, onSignOut, g
     const v = url.trim()
     if (!v) return
     const full = v.startsWith('http') ? v : 'https://' + v
-    onSubmit({ url: full, businessName: 'this business' })
+    const name = (() => { try { return new URL(full).hostname.replace(/^www\./, '') } catch { return full } })()
+    onSubmit({ url: full, businessName: name })
   }
 
-  const tryExample = (host) => {
+  const tryExample = (host, label) => {
     setUrl(host)
-    onSubmit({ url: 'https://' + host, businessName: 'this business' })
+    onSubmit({ url: 'https://' + host, businessName: label })
   }
 
   return (
@@ -108,7 +109,7 @@ export default function HomePage({ onSubmit, error, user, onSignIn, onSignOut, g
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
               <span style={{ fontSize: 13, color: 'var(--muted)' }}>Or try an example:</span>
               {EXAMPLES.map((ex) => (
-                <button key={ex.host} onClick={() => tryExample(ex.host)} className="wa-pill" style={{ gap: 7 }}>
+                <button key={ex.host} onClick={() => tryExample(ex.host, ex.label)} className="wa-pill" style={{ gap: 7 }}>
                   {ex.label} <span className="wa-mono" style={{ fontSize: 11, color: 'var(--muted-2)' }}>{ex.tag}</span>
                 </button>
               ))}
