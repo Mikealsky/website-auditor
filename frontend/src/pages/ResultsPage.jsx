@@ -89,7 +89,7 @@ export default function ResultsPage({ data, businessName, onReset }) {
                 {downloading ? 'Generating…' : <><span aria-hidden="true">⬇ </span>Download</>}
               </button>
               <button onClick={onReset} className="wa-btn wa-btn-sm" style={{ background: '#fff', color: 'var(--ink)' }}>
-                New audit
+                ← Home
               </button>
             </div>
           </div>
