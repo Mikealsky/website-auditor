@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import WADonut from '../components/WADonut'
+import AuthButton from '../components/AuthButton'
 
 const EXAMPLES = [
   { host: 'copperkettlecafe.com', label: 'Copper Kettle Café', tag: 'Restaurant' },
@@ -7,7 +8,7 @@ const EXAMPLES = [
   { host: 'profixplumbing.com', label: 'Pro-Fix Plumbing', tag: 'Trades' },
 ]
 
-export default function HomePage({ onSubmit, error }) {
+export default function HomePage({ onSubmit, error, user, onSignIn, onSignOut, getToken, onViewAudit }) {
   const [url, setUrl] = useState('')
 
   const submit = (e) => {
@@ -36,7 +37,10 @@ export default function HomePage({ onSubmit, error }) {
               <div style={{ color: 'rgba(255,255,255,.55)', fontSize: 12 }}>Free local-business check-up</div>
             </div>
           </div>
-          <span className="wa-chip" style={{ background: 'rgba(226,96,63,.2)', color: 'var(--coral-tint-3)', fontSize: 11 }}>Free</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span className="wa-chip" style={{ background: 'rgba(226,96,63,.2)', color: 'var(--coral-tint-3)', fontSize: 11 }}>Free</span>
+            <AuthButton user={user} onSignIn={onSignIn} onSignOut={onSignOut} />
+          </div>
         </header>
 
         {/* hero grid */}

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import HomePage from './pages/HomePage'
 import ResultsPage from './pages/ResultsPage'
 import LoadingScreen from './components/LoadingScreen'
+import { useAuth } from './hooks/useAuth'
 
 export default function App() {
   const [view, setView] = useState('home')
@@ -9,6 +10,7 @@ export default function App() {
   const [businessName, setBusinessName] = useState('this business')
   const [currentUrl, setCurrentUrl] = useState('')
   const [error, setError] = useState(null)
+  const { user, signIn, signOut, getToken } = useAuth()
 
   const handleSubmit = async ({ url, businessName: name }) => {
     setView('loading')
@@ -17,17 +19,18 @@ export default function App() {
     setBusinessName(name || 'this business')
 
     try {
+      const token = await getToken()
+      const headers = { 'Content-Type': 'application/json' }
+      if (token) headers['Authorization'] = `Bearer ${token}`
+
       const response = await fetch('/api/audit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ url, business_name: name }),
       })
 
       const json = await response.json()
-
-      if (!response.ok) {
-        throw new Error(json.detail || 'Audit failed. Please try again.')
-      }
+      if (!response.ok) throw new Error(json.detail || 'Audit failed. Please try again.')
 
       setAuditData(json.data)
       setView('results')
@@ -43,7 +46,25 @@ export default function App() {
     setError(null)
   }
 
+  const handleViewAudit = (auditData) => {
+    setAuditData(auditData)
+    setBusinessName(auditData.business_name || 'this business')
+    setView('results')
+  }
+
   if (view === 'loading') return <LoadingScreen url={currentUrl} />
-  if (view === 'results') return <ResultsPage data={auditData} businessName={businessName} onReset={handleReset} />
-  return <HomePage onSubmit={handleSubmit} error={error} />
+  if (view === 'results') return (
+    <ResultsPage data={auditData} businessName={businessName} onReset={handleReset} />
+  )
+  return (
+    <HomePage
+      onSubmit={handleSubmit}
+      error={error}
+      user={user}
+      onSignIn={signIn}
+      onSignOut={signOut}
+      getToken={getToken}
+      onViewAudit={handleViewAudit}
+    />
+  )
 }
