@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-13T00:00:00Z",
+  "title": "Design System: Website Auditor",
+  "extensions": {
+    "colorMeta": {
+      "coral": {
+        "role": "primary",
+        "displayName": "Signal Coral",
+        "canonical": "oklch(63% 0.17 35)",
+        "tonalRamp": ["#3d1008", "#6b1f10", "#9d3118", "#c54a27", "#e2603f", "#ef9f88", "#f6d2c6", "#fef4f1"]
+      },
+      "coral-deep": {
+        "role": "primary-deep",
+        "displayName": "Signal Coral Deep",
+        "canonical": "oklch(48% 0.17 35)",
+        "tonalRamp": ["#1f0804", "#3d1008", "#6b1f10", "#9d3118", "#b9461f", "#d97350", "#efb7a3", "#fbe9e3"]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Workshop Black",
+        "canonical": "oklch(15% 0.01 75)",
+        "tonalRamp": ["#0a0908", "#1c1a17", "#2e2b25", "#3c3a35", "#514f49", "#6e6b63", "#908d86", "#c8c5be"]
+      },
+      "surface-bg": {
+        "role": "neutral",
+        "displayName": "Concrete",
+        "canonical": "oklch(89% 0.005 75)",
+        "tonalRamp": ["#c0bdb7", "#d2cfc9", "#dedad4", "#e4e1db", "#e9e6e0", "#f1efe9", "#f6f4f0", "#faf9f7"]
+      },
+      "surface-panel": {
+        "role": "neutral",
+        "displayName": "White Wall",
+        "canonical": "oklch(94% 0.004 60)",
+        "tonalRamp": ["#c8c5bf", "#d8d5cf", "#e4e1db", "#ece9e3", "#f4f2ee", "#f8f6f2", "#fbf9f6", "#ffffff"]
+      },
+      "semantic-green": {
+        "role": "semantic-success",
+        "displayName": "Pass Green",
+        "canonical": "oklch(55% 0.12 145)",
+        "tonalRamp": ["#0f2910", "#1d4d20", "#2f5e35", "#3d7344", "#4f8f57", "#7dae83", "#b8d9bc", "#e6f0e4"]
+      },
+      "semantic-amber": {
+        "role": "semantic-warning",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(67% 0.13 70)",
+        "tonalRamp": ["#2a1a04", "#4a2e08", "#70450e", "#8a5a0e", "#b47820", "#d99033", "#edbb77", "#f7ecda"]
+      },
+      "semantic-red": {
+        "role": "semantic-error",
+        "displayName": "Fail Red",
+        "canonical": "oklch(55% 0.14 28)",
+        "tonalRamp": ["#2d0a05", "#581511", "#7d2219", "#a83228", "#d0533f", "#e88d7e", "#f5c5be", "#f7e3dd"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero headings, the audit verdict headline. One per view." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings and CTA headings." },
+      "title": { "displayName": "Title", "purpose": "Card headings and subsection labels." },
+      "body": { "displayName": "Body", "purpose": "All descriptive copy. Max 520px wide." },
+      "label": { "displayName": "Label", "purpose": "Button text, chip labels, nav items. Not for body copy." },
+      "eyebrow": { "displayName": "Eyebrow / Mono", "purpose": "Metadata and technical context only — dates, URLs, code captions. Never for section headings." }
+    },
+    "shadows": [
+      {
+        "name": "ambient",
+        "value": "0 1px 2px rgba(40,32,24,.04), 0 2px 6px rgba(40,32,24,.04)",
+        "purpose": "Default card shadow. Every .wa-card at rest."
+      },
+      {
+        "name": "raised",
+        "value": "0 2px 6px rgba(40,32,24,.05), 0 14px 34px rgba(40,32,24,.07)",
+        "purpose": "Modals, floating panels, dialogs."
+      },
+      {
+        "name": "lifted",
+        "value": "0 4px 10px rgba(40,32,24,.06), 0 30px 70px rgba(40,32,24,.10)",
+        "purpose": "The hero floating micro-card. Rarely used."
+      }
+    ],
+    "motion": [
+      { "name": "hover-fade", "value": "opacity 0.15s ease", "purpose": "Universal button hover — opacity to 0.88." },
+      { "name": "border-shift", "value": "border-color 0.15s ease", "purpose": "Input focus: border transitions to coral." }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "760px", "purpose": "Hero stacks, account modal collapses." },
+      { "name": "tablet", "value": "920px", "purpose": "Results grid and improvement plan layout collapse to single column." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Coral Primary Button",
+      "kind": "button",
+      "refersTo": "button-coral",
+      "description": "The dominant call to action. Used once per screen maximum.",
+      "html": "<button class=\"ds-btn-coral\">Run my free audit →</button>",
+      "css": ".ds-btn-coral { display: inline-flex; align-items: center; justify-content: center; gap: 9px; background: #e2603f; color: #fff; border: none; border-radius: 999px; padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; cursor: pointer; min-height: 44px; box-shadow: 0 8px 20px color-mix(in srgb, #e2603f 30%, transparent); transition: opacity 0.15s ease; } .ds-btn-coral:hover { opacity: 0.88; } .ds-btn-coral:focus-visible { outline: 2px solid #e2603f; outline-offset: 3px; } .ds-btn-coral:disabled { opacity: 0.55; cursor: default; }"
+    },
+    {
+      "name": "Black Primary Button",
+      "kind": "button",
+      "refersTo": "button-black",
+      "description": "Primary action on dark surfaces and as secondary-CTA adjacent to coral.",
+      "html": "<button class=\"ds-btn-black\">Open my step-by-step plan →</button>",
+      "css": ".ds-btn-black { display: inline-flex; align-items: center; justify-content: center; gap: 9px; background: #1c1a17; color: #fff; border: none; border-radius: 999px; padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; cursor: pointer; min-height: 44px; transition: opacity 0.15s ease; } .ds-btn-black:hover { opacity: 0.88; } .ds-btn-black:focus-visible { outline: 2px solid #1c1a17; outline-offset: 3px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "De-emphasized action. Never competes with a coral or black button on the same row.",
+      "html": "<button class=\"ds-btn-ghost\">← Home</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 9px; background: #fff; color: #1c1a17; border: 1px solid #ece9e3; border-radius: 999px; padding: 14px 24px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; line-height: 1; white-space: nowrap; cursor: pointer; min-height: 44px; transition: opacity 0.15s ease; } .ds-btn-ghost:hover { opacity: 0.88; } .ds-btn-ghost:focus-visible { outline: 2px solid #1c1a17; outline-offset: 3px; }"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "chip-coral",
+      "description": "Pill label for category, status, and priority. Three semantic variants plus coral and dark.",
+      "html": "<span class=\"ds-chip ds-chip-coral\">High impact</span> <span class=\"ds-chip ds-chip-green\">Pass</span> <span class=\"ds-chip ds-chip-amber\">Medium</span> <span class=\"ds-chip ds-chip-red\">Needs work</span> <span class=\"ds-chip ds-chip-dark\">Locked</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; gap: 6px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .02em; padding: 6px 11px; border-radius: 999px; line-height: 1; } .ds-chip-coral { background: #fbe9e3; color: #b9461f; } .ds-chip-green { background: #e6f0e4; color: #2f5e35; } .ds-chip-amber { background: #f7ecda; color: #8a5a0e; } .ds-chip-red { background: #f7e3dd; color: #a83228; } .ds-chip-dark { background: #1c1a17; color: #fff; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The primary content surface. White island in the Concrete background.",
+      "html": "<div class=\"ds-card\"><div style=\"font-weight:800;font-size:18px\">Page title missing</div><p style=\"font-size:14px;color:#908d86;margin-top:6px;line-height:1.5\">Your page has no title tag. This affects how Google and browsers display your site.</p></div>",
+      "css": ".ds-card { background: #fff; border-radius: 22px; box-shadow: 0 1px 2px rgba(40,32,24,.04), 0 2px 6px rgba(40,32,24,.04); padding: 22px; font-family: 'Hanken Grotesk', system-ui, sans-serif; color: #1c1a17; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "URL and form inputs. Focus shifts border to Signal Coral.",
+      "html": "<div class=\"ds-input-wrap\"><input class=\"ds-input\" type=\"url\" placeholder=\"yourwebsite.com\" /></div>",
+      "css": ".ds-input-wrap { width: 100%; } .ds-input { width: 100%; box-sizing: border-box; background: #faf8f5; border: 1px solid #ece9e3; border-radius: 11px; padding: 10px 14px; font-size: 14px; font-family: 'Hanken Grotesk', system-ui, sans-serif; color: #1c1a17; outline: none; transition: border-color 0.15s ease; } .ds-input:focus { border-color: #e2603f; } .ds-input::placeholder { color: #b6b2a9; }"
+    },
+    {
+      "name": "Pass / Fail Icon",
+      "kind": "custom",
+      "refersTo": "chip-green",
+      "description": "26px semantic state icon — always paired with a text label, never used alone.",
+      "html": "<span class=\"ds-ico ds-ico-pass\">✓</span> <span class=\"ds-ico ds-ico-warn\">!</span> <span class=\"ds-ico ds-ico-fail\">✗</span>",
+      "css": ".ds-ico { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-size: 13px; font-weight: 800; font-family: 'Hanken Grotesk', system-ui, sans-serif; } .ds-ico-pass { background: #e6f0e4; color: #2f5e35; } .ds-ico-warn { background: #f7ecda; color: #8a5a0e; } .ds-ico-fail { background: #f7e3dd; color: #a83228; }"
+    },
+    {
+      "name": "Score Box (Dark Surface)",
+      "kind": "custom",
+      "refersTo": "card",
+      "description": "The audit score display box used in the dark results header band. Workshop Black background, white text, semantic progress bar.",
+      "html": "<div class=\"ds-score-box\"><div class=\"ds-score-number\">42<span class=\"ds-score-denom\">/100</span></div><div class=\"ds-score-label\">Performance</div><div class=\"ds-score-track\"><div class=\"ds-score-fill\" style=\"width:42%; background:#e2603f\"></div></div></div>",
+      "css": ".ds-score-box { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 16px; padding: 16px 18px; font-family: 'Hanken Grotesk', system-ui, sans-serif; color: #fff; min-width: 100px; } .ds-score-number { display: flex; align-items: baseline; justify-content: space-between; font-size: 44px; font-weight: 800; letter-spacing: -0.04em; line-height: 1; } .ds-score-denom { font-size: 12px; color: rgba(255,255,255,.48); font-weight: 400; } .ds-score-label { font-size: 13.5px; font-weight: 700; margin-top: 10px; } .ds-score-track { height: 5px; border-radius: 99px; background: rgba(255,255,255,.14); margin-top: 8px; } .ds-score-fill { height: 100%; border-radius: 99px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Honest Mechanic",
+    "overview": "A mechanic doesn't show you a glossy report — they show you the part that's failing and hand you a numbered to-do list. Website Auditor is built on that same principle: the result is the product. There's no decoration between the user and the verdict, no jargon barrier, no upsell choreography. Every pixel serves the diagnosis.\n\nThe interface earns trust the way expertise earns trust — through clarity, speed, and the confident absence of fuss. The dark header band states the result before the user has scrolled a pixel. The fix list speaks to a non-technical business owner the way a good tradesperson's quote does: ranked by what matters most, written in language anyone can act on. Signal Coral is the wrench icon of the palette — it appears only where action is required.\n\nThis system deliberately rejects the three failure modes of the category: the cold SaaS dashboard; the generic AI tool aesthetic of cream backgrounds and glassmorphism; and the bouncy startup playfulness that reads as unserious to someone who needs honest advice about their livelihood.",
+    "keyCharacteristics": [
+      "Neutral-gray background that makes Signal Coral the only warm element on screen",
+      "Black header band that delivers the verdict before any copy is read",
+      "Pill-shaped buttons and chips — rounded without being soft",
+      "Semantic color palette (green/amber/red) always paired with icons, never color-only",
+      "Two-font system: Hanken Grotesk for all UI; JetBrains Mono strictly for code and metadata"
+    ],
+    "rules": [
+      { "name": "The One Warm Rule", "body": "Signal Coral is the only warm-hued element. Every other color is neutral or semantic. A second warm accent breaks the system.", "section": "colors" },
+      { "name": "The Semantic Pairing Rule", "body": "Pass/warn/fail states are never conveyed by color alone. Every semantic element pairs the color with an icon or text label.", "section": "colors" },
+      { "name": "The One-Family Rule", "body": "Hanken Grotesk carries every role. JetBrains Mono is restricted to URLs, code blocks, dates, and the eyebrow class. No third family.", "section": "typography" },
+      { "name": "The Weight Contrast Rule", "body": "Display and headings: 800. Labels: 700. Body: 400. Three steps. Do not collapse the contrast.", "section": "typography" },
+      { "name": "The Flat Panel Rule", "body": "Panel surfaces use background-color only — no shadows. Shadows are for cards within panels, not the panels themselves.", "section": "elevation" },
+      { "name": "The No-Decorative-Shadow Rule", "body": "Shadows on static non-interactive surfaces are prohibited. If it doesn't respond to hover or focus, it doesn't shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Signal Coral only on primary actions, the high-priority chip, and score progress fills",
+      "Do pair every semantic color (green, amber, red) with an icon or text label",
+      "Do use --muted text only for annotations and timestamps — never for body copy that carries meaning",
+      "Do maintain the 800 → 700 → 400 weight structure for display → label → body",
+      "Do use text-wrap: balance on all display and headline elements",
+      "Do use JetBrains Mono strictly for URLs, code blocks, dates, and the wa-eyebrow class"
+    ],
+    "donts": [
+      "Don't use cream, sand, beige, or warm-tinted backgrounds for the page background",
+      "Don't use glassmorphism decoratively — only the lock overlay uses it for a specific purpose",
+      "Don't add border-left greater than 1px as a colored accent stripe on cards or callouts",
+      "Don't use background-clip: text with a gradient — prohibited in all cases",
+      "Don't place a small mono uppercase eyebrow above every section heading — reserve it for metadata only",
+      "Don't make the design feel cold or enterprise (no dark navy, no dense data tables as internal tooling)",
+      "Don't make the design feel playful or startup-cute (no pastel gradients, no bounce animations)",
+      "Don't reuse the Score Band pattern outside the results page header",
+      "Don't hard-code hex values for colors that have CSS custom properties"
+    ]
+  }
+}

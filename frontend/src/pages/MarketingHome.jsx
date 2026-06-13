@@ -11,6 +11,12 @@ const STEPS = [
   { n: '2', t: 'We scan it in seconds', d: 'We check speed, search ranking and design automatically.' },
   { n: '3', t: 'Get your fix list', d: 'See your scores free, then unlock the full step-by-step plan.' },
 ]
+const SVC_ICONS = [
+  <svg key="0" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>,
+  <svg key="1" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  <svg key="2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>,
+  <svg key="3" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
+]
 const EXAMPLES = [
   { host: 'copperkettlecafe.com', name: 'Copper Kettle Café', tag: 'Restaurant', scores: [42, 61, 78] },
   { host: 'bellahairstudio.com', name: 'Bella Hair Studio', tag: 'Salon', scores: [55, 48, 83] },
@@ -86,8 +92,8 @@ export default function MarketingHome({ onStart, onViewExample, user, onSignIn, 
 
         {/* trust strip */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(14px,3vw,36px)', flexWrap: 'wrap', padding: '10px 0 0', color: 'var(--muted)', fontSize: 14 }}>
-          <span>Trusted by local</span>
-          {['Cafés', 'Salons', 'Trades', 'Restaurants', 'Mom-and-pop shops'].map((x, i) => (
+          <span>Built for:</span>
+          {['Cafés', 'Salons', 'Trades', 'Restaurants', 'Local services'].map((x, i) => (
             <span key={i} style={{ fontWeight: 700, color: 'var(--ink-2)' }}>{x}</span>
           ))}
         </div>
@@ -97,22 +103,26 @@ export default function MarketingHome({ onStart, onViewExample, user, onSignIn, 
       <section id="wa-services" style={{ background: 'var(--panel)', marginTop: 56, padding: 'clamp(48px,6vw,80px) 22px' }}>
         <div style={{ maxWidth: 1180, margin: '0 auto' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 14, marginBottom: 44 }}>
-            <span className="wa-eyebrow">What we do</span>
             <h2 style={{ fontSize: 'clamp(30px,3.4vw,42px)', fontWeight: 800, letterSpacing: '-0.03em', maxWidth: 720, textWrap: 'balance' }}>
               Everything you need to turn your website into your best salesperson
             </h2>
-            <p style={{ fontSize: 17, color: 'var(--muted)', maxWidth: 560, lineHeight: 1.5 }}>
+            <p style={{ fontSize: 17, color: 'var(--ink-2)', maxWidth: 560, lineHeight: 1.5 }}>
               We handle the technical stuff so you don't have to. Here's what your free audit looks at — and how we help you fix it.
             </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 18 }}>
-            {SERVICES.map((s, i) => (
-              <div key={i} className="wa-card" style={{ padding: 26, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ width: 46, height: 46, borderRadius: 13, background: 'var(--coral-tint-1)', color: 'var(--coral-700)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 19 }}>{i + 1}</div>
-                <h3 style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.01em' }}>{s.t}</h3>
-                <p style={{ fontSize: 14.5, color: 'var(--muted)', lineHeight: 1.5 }}>{s.d}</p>
-              </div>
-            ))}
+            {SERVICES.map((s, i) => {
+              const isHighlight = i === 3
+              return (
+                <div key={i} className="wa-card" style={{ padding: 26, display: 'flex', flexDirection: 'column', gap: 12, ...(isHighlight ? { background: 'var(--coral-tint-1)', boxShadow: 'none', border: '1px solid var(--coral-tint-2)' } : {}) }}>
+                  <div style={{ width: 46, height: 46, borderRadius: 13, background: isHighlight ? 'var(--coral)' : 'var(--coral-tint-1)', color: isHighlight ? '#fff' : 'var(--coral-700)', display: 'grid', placeItems: 'center' }}>
+                    {SVC_ICONS[i]}
+                  </div>
+                  <h3 style={{ fontSize: 19, fontWeight: 800, letterSpacing: '-0.01em' }}>{s.t}</h3>
+                  <p style={{ fontSize: 14.5, color: isHighlight ? 'var(--coral-700)' : 'var(--ink-2)', lineHeight: 1.5 }}>{s.d}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
@@ -120,15 +130,16 @@ export default function MarketingHome({ onStart, onViewExample, user, onSignIn, 
       {/* how it works */}
       <section style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(48px,6vw,80px) 22px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 14, marginBottom: 40 }}>
-          <span className="wa-eyebrow">How it works</span>
           <h2 style={{ fontSize: 'clamp(30px,3.4vw,42px)', fontWeight: 800, letterSpacing: '-0.03em' }}>Three steps to a better website</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 18 }}>
           {STEPS.map((s, i) => (
             <div key={i} style={{ padding: '8px 6px' }}>
-              <div style={{ fontSize: 54, fontWeight: 800, color: 'var(--coral-tint-3)', letterSpacing: '-0.04em', lineHeight: 1 }}>{s.n}</div>
-              <h3 style={{ fontSize: 20, fontWeight: 800, marginTop: 12 }}>{s.t}</h3>
-              <p style={{ fontSize: 15, color: 'var(--muted)', marginTop: 6, lineHeight: 1.5, maxWidth: 300 }}>{s.d}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--coral-tint-1)', color: 'var(--coral-700)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 15, flexShrink: 0 }}>{s.n}</div>
+                <h3 style={{ fontSize: 20, fontWeight: 800 }}>{s.t}</h3>
+              </div>
+              <p style={{ fontSize: 15, color: 'var(--ink-2)', lineHeight: 1.5, maxWidth: 300 }}>{s.d}</p>
             </div>
           ))}
         </div>
@@ -138,9 +149,8 @@ export default function MarketingHome({ onStart, onViewExample, user, onSignIn, 
       <section id="wa-examples" style={{ background: 'var(--panel)', padding: 'clamp(48px,6vw,80px) 22px' }}>
         <div style={{ maxWidth: 1180, margin: '0 auto' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 14, marginBottom: 44 }}>
-            <span className="wa-eyebrow">See it in action</span>
             <h2 style={{ fontSize: 'clamp(30px,3.4vw,42px)', fontWeight: 800, letterSpacing: '-0.03em' }}>Example audits</h2>
-            <p style={{ fontSize: 17, color: 'var(--muted)', maxWidth: 560, lineHeight: 1.5 }}>Real-world examples of the report you'll get. Click any one to explore a full sample audit.</p>
+            <p style={{ fontSize: 17, color: 'var(--ink-2)', maxWidth: 560, lineHeight: 1.5 }}>Real-world examples of the report you'll get. Click any one to explore a full sample audit.</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 18 }}>
             {EXAMPLES.map((ex, i) => (
@@ -171,7 +181,7 @@ export default function MarketingHome({ onStart, onViewExample, user, onSignIn, 
 
       {/* final CTA */}
       <section style={{ maxWidth: 1180, margin: '0 auto', padding: 'clamp(48px,6vw,80px) 22px' }}>
-        <div style={{ background: 'linear-gradient(135deg, var(--coral) 0%, var(--coral-600) 100%)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(40px,5vw,64px) clamp(28px,4vw,56px)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
+        <div style={{ background: 'var(--coral)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(40px,5vw,64px) clamp(28px,4vw,56px)', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
           <h2 style={{ fontSize: 'clamp(30px,3.6vw,46px)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.05, maxWidth: 680, textWrap: 'balance' }}>
             Ready to see how your website is really doing?
           </h2>

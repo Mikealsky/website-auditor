@@ -18,7 +18,7 @@ function CheckList({ items }) {
           <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '11px 0', borderBottom: i < items.length - 1 ? '1px solid var(--line-2)' : 'none' }}>
             <span className={'wa-ico ' + ico}>{g}</span>
             <span style={{ fontSize: 14, color: 'var(--ink-2)', lineHeight: 1.4, paddingTop: 2 }}>
-              <b>{c.label}</b> <span style={{ color: 'var(--muted)' }}>— {c.detail}</span>
+              <b>{c.label}</b> <span style={{ color: 'var(--ink-2)' }}>— {c.detail}</span>
             </span>
           </div>
         )
@@ -30,7 +30,9 @@ function CheckList({ items }) {
 function LockOverlay({ title, sub, onUnlock }) {
   return (
     <div style={{ position: 'absolute', inset: 0, borderRadius: 'var(--r-lg)', background: 'linear-gradient(180deg, rgba(244,242,238,.55) 0%, rgba(244,242,238,.96) 62%)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'center', padding: 28, gap: 12 }}>
-      <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', fontSize: 22 }}>🔒</div>
+      <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center' }}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
       <h3 style={{ fontSize: 21, fontWeight: 800, letterSpacing: '-0.02em', maxWidth: 360, textWrap: 'balance' }}>{title}</h3>
       <p style={{ fontSize: 14.5, color: 'var(--muted)', maxWidth: 380, lineHeight: 1.5 }}>{sub}</p>
       <button onClick={onUnlock} className="wa-btn wa-btn-coral" style={{ marginTop: 6, padding: '14px 26px', fontSize: 15, whiteSpace: 'nowrap' }}>
@@ -123,9 +125,21 @@ export default function ResultsPage({ data, businessName, onReset, onViewPlan, o
                 onClick={handleDownload}
                 disabled={downloading}
                 className="wa-btn wa-btn-sm"
-                style={{ background: 'rgba(255,255,255,.1)', color: '#fff', opacity: downloading ? 0.65 : 1 }}
+                style={{ background: 'rgba(255,255,255,.1)', color: '#fff', opacity: downloading ? 0.65 : 1, display: 'inline-flex', alignItems: 'center', gap: 7 }}
               >
-                {unlocked ? (downloading ? 'Generating…' : '⬇ Download') : '🔒 Download'}
+                {unlocked ? (
+                  downloading ? 'Generating…' : (
+                    <>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                      Download
+                    </>
+                  )
+                ) : (
+                  <>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Download
+                  </>
+                )}
               </button>
               <button onClick={onReset} className="wa-btn wa-btn-sm" style={{ background: '#fff', color: 'var(--ink)' }}>New audit</button>
             </div>
@@ -146,7 +160,7 @@ export default function ResultsPage({ data, businessName, onReset, onViewPlan, o
                 <div key={i} style={{ flex: '1 1 100px', minWidth: 100, maxWidth: 165, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 'var(--r-md)', padding: '16px 18px' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
                     <span style={{ fontSize: 44, fontWeight: 800, letterSpacing: '-0.04em', lineHeight: 1 }}>{s.pct}</span>
-                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,.48)' }}>/100</span>
+                    <span style={{ fontSize: 12, color: 'rgba(255,255,255,.62)' }}>/100</span>
                   </div>
                   <div style={{ fontSize: 13.5, fontWeight: 700, marginTop: 10 }}>{s.l}</div>
                   <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,.14)', marginTop: 8 }}>
@@ -207,7 +221,7 @@ export default function ResultsPage({ data, businessName, onReset, onViewPlan, o
                     <div style={{ flexShrink: 0, width: 44, height: 44, borderRadius: '50%', background: 'var(--coral-tint-1)', color: 'var(--coral-700)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 19 }}>{f.n}</div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 800, fontSize: 18 }}>{f.title}</div>
-                      <p style={{ fontSize: 14.5, color: 'var(--muted)', marginTop: 4, lineHeight: 1.45 }}>{f.body}</p>
+                      <p style={{ fontSize: 14.5, color: 'var(--ink-2)', marginTop: 4, lineHeight: 1.45 }}>{f.body}</p>
                     </div>
                     <span className="wa-chip wa-chip-red" style={{ flexShrink: 0 }}>High impact</span>
                   </div>
@@ -221,7 +235,7 @@ export default function ResultsPage({ data, businessName, onReset, onViewPlan, o
                         <div style={{ flexShrink: 0, width: 28, height: 28, borderRadius: '50%', background: 'var(--ink)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: 13 }}>{f.n}</div>
                         <div style={{ flex: 1 }}>
                           <span style={{ fontWeight: 700, fontSize: 15 }}>{f.title}</span>
-                          <p style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 2 }}>{f.body}</p>
+                          <p style={{ fontSize: 13.5, color: 'var(--ink-2)', marginTop: 2 }}>{f.body}</p>
                         </div>
                         <span className={'wa-chip ' + (f.priority === 'Medium' ? 'wa-chip-amber' : 'wa-chip-green')} style={{ flexShrink: 0 }}>{f.priority}</span>
                       </div>
@@ -235,7 +249,7 @@ export default function ResultsPage({ data, businessName, onReset, onViewPlan, o
                     <div style={{ flexShrink: 0, width: 44, height: 44, borderRadius: '50%', background: 'var(--line)' }} />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 800, fontSize: 18 }}>{f.title}</div>
-                      <p style={{ fontSize: 14.5, color: 'var(--muted)', marginTop: 4 }}>{f.body}</p>
+                      <p style={{ fontSize: 14.5, color: 'var(--ink-2)', marginTop: 4 }}>{f.body}</p>
                     </div>
                   </div>
                 ))}
@@ -314,7 +328,7 @@ export default function ResultsPage({ data, businessName, onReset, onViewPlan, o
         </div>
 
         {/* CTA footer */}
-        <div style={{ background: 'linear-gradient(110deg, var(--coral) 0%, var(--coral-600) 100%)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(22px,2.6vw,26px) clamp(24px,3vw,34px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
+        <div style={{ background: 'var(--coral)', color: '#fff', borderRadius: 'var(--r-xl)', padding: 'clamp(22px,2.6vw,26px) clamp(24px,3vw,34px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
           <div>
             <h3 style={{ fontSize: 'clamp(20px,2.4vw,26px)', fontWeight: 800, letterSpacing: '-0.02em' }}>
               {unlocked ? 'Rather have us do it for you?' : 'Unlock your full plan — it\'s free'}
